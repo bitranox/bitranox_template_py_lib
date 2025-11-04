@@ -28,8 +28,13 @@ import shlex
 import shutil
 import subprocess
 import sys
-import tomllib
 import textwrap
+
+# Use tomllib (Python 3.11+) or tomli backport (Python 3.10)
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib  # type: ignore[import-not-found,no-redef]
 from dataclasses import dataclass
 from pathlib import Path
 from subprocess import CompletedProcess

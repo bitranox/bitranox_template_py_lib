@@ -354,7 +354,11 @@ def _get_toml_module() -> ModuleType:
     if _toml_module is not None:
         return _toml_module
 
-    import tomllib as module
+    # Use tomllib (Python 3.11+) or tomli backport (Python 3.10)
+    try:
+        import tomllib as module
+    except ModuleNotFoundError:
+        import tomli as module  # type: ignore[import-not-found,no-redef]
 
     _toml_module = module
     return module

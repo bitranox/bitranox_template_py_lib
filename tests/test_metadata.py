@@ -5,7 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any, cast
 import runpy
-import tomllib
+
+# Use tomllib (Python 3.11+) or tomli backport (Python 3.10)
+try:
+    import tomllib
+except ModuleNotFoundError:
+    import tomli as tomllib  # type: ignore[import-not-found,no-redef]
 
 import pytest
 
