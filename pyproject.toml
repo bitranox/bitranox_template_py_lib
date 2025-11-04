@@ -74,6 +74,10 @@ extraPaths = [
 exclude = [
   "scripts/menu.py",
 ]
+# Allow unknown types from tomllib/tomli conditional imports (Python 3.10 compatibility)
+reportUnknownVariableType = false
+reportUnknownMemberType = false
+reportUnknownArgumentType = false
 
 [tool.pytest.ini_options]
 addopts = ["--doctest-modules"]
