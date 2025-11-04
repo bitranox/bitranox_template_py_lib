@@ -12,7 +12,7 @@
 [![Maintainability](https://qlty.sh/badges/041ba2c1-37d6-40bb-85a0-ec5a8a0aca0c/maintainability.svg)](https://qlty.sh/gh/bitranox/projects/bitranox_template_py_lib)
 [![Known Vulnerabilities](https://snyk.io/test/github/bitranox/bitranox_template_py_lib/badge.svg)](https://snyk.io/test/github/bitranox/bitranox_template_py_lib)
 
-<agent: fill in short project description and main features>
+Template for backward compatible (3.9 upwards) python libs with registered cli commands
 - CLI entry point styled with rich-click (rich output + click ergonomics)
 
 ## Install - recommended via UV
@@ -35,15 +35,15 @@ For alternative install paths (pip, pipx, uv, uvx source builds, etc.), see
 [INSTALL.md](INSTALL.md). All supported methods register both the
 `bitranox_template_py_lib` and `bitranox-template-py-cli` commands on your PATH.
 
-### Python 3.10+ Baseline
+### Python 3.9+ Baseline
 
-- The project targets **Python 3.10 and newer**. 
-- Runtime dependencies stay on the current stable releases (`rich-click>=1.9.3`
-  for beautiful CLI output) and keeps pytest, ruff, pyright, bandit,
-  build, twine, codecov-cli, pip-audit, textual, and import-linter pinned to
-  their newest majors.
+- The project targets **Python 3.9 and newer**. 
+- Runtime dependencies stay on the current stable releases (`rich-click>=1.9.4`
+  for beautiful CLI output, `tomli>=2.0.0` for Python 3.9-3.10 TOML parsing) and
+  keeps pytest, ruff, pyright, bandit, build, twine, codecov-cli, pip-audit,
+  textual, and import-linter pinned to their newest majors.
 - CI workflows exercise GitHub's rolling runner images (`ubuntu-latest`,
-  `macos-latest`, `windows-latest`) and cover CPython 3.10+ alongside the latest
+  `macos-latest`, `windows-latest`) and cover CPython 3.9+ alongside the latest
   available 3.x release provided by Actions.
 
 
