@@ -9,7 +9,7 @@ import runpy
 # Use tomllib (Python 3.11+) or tomli backport (Python 3.10)
 if TYPE_CHECKING:
     # For type checkers, use tomllib types (compatible with both)
-    import tomllib
+    import tomllib  # pyright: ignore[reportMissingImports]
 else:
     # At runtime, use whichever is available
     try:
