@@ -47,14 +47,14 @@ else:
         import tomli as tomllib  # type: ignore[import-not-found,no-redef]
 
 
-@dataclass(slots=True)
+@dataclass
 class RunResult:
     code: int
     out: str
     err: str
 
 
-@dataclass(slots=True)
+@dataclass
 class ProjectMetadata:
     name: str
     description: str

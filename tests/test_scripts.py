@@ -32,7 +32,7 @@ class RecordedOptions(TypedDict):
     dry_run: bool
 
 
-@dataclass(slots=True)
+@dataclass
 class RecordedRun:
     """Single invocation captured from a scripts command execution.
 
