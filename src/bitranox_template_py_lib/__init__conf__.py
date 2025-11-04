@@ -22,9 +22,9 @@ from __future__ import annotations
 #: Distribution name declared in ``pyproject.toml``.
 name = "bitranox_template_py_lib"
 #: Human-readable summary shown in CLI help output.
-title = "Template for python libs with registered cli commands"
+title = "Template for backward compatible python libs with registered cli commands"
 #: Current release version pulled from ``pyproject.toml`` by automation.
-version = "0.0.1"
+version = "1.0.0"
 #: Repository homepage presented to users.
 homepage = "https://github.com/bitranox/bitranox_template_py_lib"
 #: Author attribution surfaced in CLI output.
