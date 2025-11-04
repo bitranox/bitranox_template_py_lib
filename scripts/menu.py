@@ -363,7 +363,7 @@ class ParamScreen(Screen[Optional[dict[str, str]]]):
         return app
 
 
-class RunScreen(Screen[int | None]):
+class RunScreen(Screen[Optional[int]]):
     """Run the selected make target and stream output inside a whiptail-like window."""
 
     BINDINGS = [("escape", "cancel", "Cancel"), ("q", "cancel", "Cancel")]
