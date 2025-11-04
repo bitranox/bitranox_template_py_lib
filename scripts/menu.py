@@ -4,7 +4,7 @@ import asyncio
 import os
 import signal
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import contextlib
 
@@ -259,7 +259,7 @@ class MenuScreen(Screen[None]):
         return app
 
 
-class ParamScreen(Screen[dict[str, str] | None]):
+class ParamScreen(Screen[Optional[dict[str, str]]]):
     """Simple whiptail-style form for editing target parameters."""
 
     BINDINGS = [("escape", "cancel", "Cancel"), ("q", "cancel", "Cancel")]
