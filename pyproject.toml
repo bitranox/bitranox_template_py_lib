@@ -3,7 +3,7 @@ name = "bitranox_template_py_lib"
 version = "0.0.1"
 description = "Template for python libs with registered cli commands"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = [
     "rich-click>=1.9.4",
     "tomli>=2.0.0; python_version<'3.11'",
@@ -14,6 +14,7 @@ keywords = ["logging", "rich", "cli", "terminal", "ansi"]
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -60,7 +61,7 @@ include = ["src/bitranox_template_py_lib/py.typed"]
 
 [tool.ruff]
 line-length = 160
-target-version = "py310"
+target-version = "py39"
 
 [tool.ruff.lint.per-file-ignores]
 # ignore the "unused import sys" in the jupyter notebook - which we need (it is a linter hickup)
