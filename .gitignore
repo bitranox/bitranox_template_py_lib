@@ -29,6 +29,7 @@ pnpm-debug.log*
 !.env.example
 todo.md
 tmp_*
+.claude
 
 # ====================================
 # IDEs & Editors
