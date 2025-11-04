@@ -35,7 +35,7 @@ __all__ = [
 ]
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class ParamSpec:
     """Describe a configurable environment variable for an automation target."""
 
@@ -46,7 +46,7 @@ class ParamSpec:
     validator: Callable[[str], bool] | None = None
 
 
-@dataclass(frozen=True, slots=True)
+@dataclass(frozen=True)
 class TargetSpec:
     """Describe a Make/CLI target exposed by the automation toolbox."""
 
