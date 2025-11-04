@@ -17,8 +17,8 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        # Test against Python 3.13 and the latest 3.x available on Actions runners
-        python: ["3.9","3.10","3.11","3.12","3.13", "3.x"]
+        # Test against Python 3.10+ as specified in requires-python
+        python: ["3.10","3.11","3.12","3.13", "3.x"]
     env:
       PYO3_USE_ABI3_FORWARD_COMPATIBILITY: "1"
     steps:
@@ -36,7 +36,10 @@ jobs:
         shell: python
         run: |
           import os
-          import tomllib
+          try:
+              import tomllib
+          except ModuleNotFoundError:
+              import tomli as tomllib
           from pathlib import Path
 
           data = tomllib.loads(Path('pyproject.toml').read_text('utf-8'))
@@ -122,7 +125,10 @@ jobs:
         shell: python
         run: |
           import os
-          import tomllib
+          try:
+              import tomllib
+          except ModuleNotFoundError:
+              import tomli as tomllib
           from pathlib import Path
 
           data = tomllib.loads(Path('pyproject.toml').read_text('utf-8'))

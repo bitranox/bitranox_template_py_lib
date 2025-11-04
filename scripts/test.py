@@ -355,13 +355,14 @@ def _get_toml_module() -> ModuleType:
         return _toml_module
 
     # Use tomllib (Python 3.11+) or tomli backport (Python 3.10)
+    # Both have the same interface, so we can treat them interchangeably
     try:
-        import tomllib as module
+        import tomllib as module  # type: ignore[import-not-found]
     except ModuleNotFoundError:
         import tomli as module  # type: ignore[import-not-found,no-redef]
 
     _toml_module = module
-    return module
+    return cast(ModuleType, module)
 
 
 def _read_fail_under(pyproject: Path) -> int:

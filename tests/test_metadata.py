@@ -3,14 +3,19 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 import runpy
 
 # Use tomllib (Python 3.11+) or tomli backport (Python 3.10)
-try:
+if TYPE_CHECKING:
+    # For type checkers, use tomllib types (compatible with both)
     import tomllib
-except ModuleNotFoundError:
-    import tomli as tomllib  # type: ignore[import-not-found,no-redef]
+else:
+    # At runtime, use whichever is available
+    try:
+        import tomllib
+    except ModuleNotFoundError:
+        import tomli as tomllib  # type: ignore[import-not-found,no-redef]
 
 import pytest
 
