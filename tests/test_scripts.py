@@ -5,7 +5,7 @@ from collections.abc import Mapping, Sequence
 import sys
 from dataclasses import dataclass
 from types import ModuleType, SimpleNamespace
-from typing import Callable, Protocol, TypedDict
+from typing import Callable, Protocol, TypedDict, Union
 
 import pytest
 from pytest import MonkeyPatch
@@ -20,8 +20,8 @@ from scripts._utils import RunResult, ProjectMetadata
 from scripts import _utils
 
 
-RunCommand = Sequence[str] | str
-ModuleLike = ModuleType | SimpleNamespace
+RunCommand = Union[Sequence[str], str]
+ModuleLike = Union[ModuleType, SimpleNamespace]
 
 
 class RecordedOptions(TypedDict):
