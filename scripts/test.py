@@ -32,6 +32,7 @@ _TRUTHY = {"1", "true", "yes", "on"}
 _FALSY = {"0", "false", "no", "off"}
 _DEFAULT_PIP_AUDIT_IGNORES = (
     "GHSA-4xh5-x5gv-qwph",
+    "GHSA-cx63-2mw6-8hw5",  # setuptools 68.1.2 - not a runtime dependency
     "PYSEC-2022-43012",  # setuptools 65.5.0 - not a runtime dependency
     "PYSEC-2025-49",  # setuptools 65.5.0 - not a runtime dependency
 )
