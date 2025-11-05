@@ -566,8 +566,13 @@ def bootstrap_dev() -> None:
         ci_token = os.getenv("CI", "").strip().lower()
         is_ci = ci_token in {"1", "true", "yes"}
         sha_error = "sha256" in combined_output and "hash" in combined_output
-        if is_ci and sha_error:
-            print("[bootstrap] pip upgrade failed due to SHA256 verification; continuing on CI")
+        # Debian package manager conflict: pip was installed by system package manager
+        debian_pip_error = "record file not found" in combined_output or "installed by debian" in combined_output
+        if (is_ci and sha_error) or debian_pip_error:
+            if sha_error:
+                print("[bootstrap] pip upgrade failed due to SHA256 verification; continuing on CI")
+            if debian_pip_error:
+                print("[bootstrap] pip upgrade failed due to Debian package manager conflict; continuing with system pip")
         else:
             if pip_upgrade.out:
                 print(pip_upgrade.out, end="")
