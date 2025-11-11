@@ -36,14 +36,14 @@ from typing import Any, Mapping, Sequence, cast
 from urllib.parse import urlparse
 
 
-@dataclass(slots=True)
+@dataclass
 class RunResult:
     code: int
     out: str
     err: str
 
 
-@dataclass(slots=True)
+@dataclass
 class ProjectMetadata:
     name: str
     description: str
