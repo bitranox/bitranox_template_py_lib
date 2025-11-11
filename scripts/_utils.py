@@ -28,33 +28,23 @@ import shlex
 import shutil
 import subprocess
 import sys
+import tomllib
 import textwrap
 from dataclasses import dataclass
 from pathlib import Path
 from subprocess import CompletedProcess
-from typing import TYPE_CHECKING, Any, Mapping, Sequence, cast
+from typing import Any, Mapping, Sequence, cast
 from urllib.parse import urlparse
 
-# Use tomllib (Python 3.11+) or tomli backport (Python 3.10)
-if TYPE_CHECKING:
-    # For type checkers, use tomllib types (compatible with both)
-    import tomllib  # pyright: ignore[reportMissingImports]
-else:
-    # At runtime, use whichever is available
-    try:
-        import tomllib
-    except ModuleNotFoundError:
-        import tomli as tomllib  # type: ignore[import-not-found,no-redef]
 
-
-@dataclass
+@dataclass(slots=True)
 class RunResult:
     code: int
     out: str
     err: str
 
 
-@dataclass
+@dataclass(slots=True)
 class ProjectMetadata:
     name: str
     description: str
@@ -157,6 +147,19 @@ def cmd_exists(name: str) -> bool:
 def _normalize_slug(value: str) -> str:
     slug = re.sub(r"[^A-Za-z0-9]+", "-", value).strip("-").lower()
     return slug or value.replace("_", "-").lower()
+
+
+def _package_name_to_display(value: str) -> str:
+    """Convert package name to display-friendly app name.
+
+    Examples:
+        "check_zpool_status" -> "Check ZPool Status"
+        "my-cool-app" -> "My Cool App"
+    """
+    # Replace underscores and hyphens with spaces
+    normalized = value.replace("_", " ").replace("-", " ")
+    # Title case each word
+    return " ".join(word.capitalize() for word in normalized.split())
 
 
 def _as_str_mapping(value: object) -> dict[str, object]:
@@ -432,6 +435,13 @@ author_email = {_quote(project.author_email)}
 #: Console-script name published by the package.
 shell_command = {_quote(project.shell_command)}
 
+#: Vendor identifier for lib_layered_config paths (macOS/Windows)
+LAYEREDCONF_VENDOR: str = {_quote(project.author_name)}
+#: Application display name for lib_layered_config paths (macOS/Windows)
+LAYEREDCONF_APP: str = {_quote(_package_name_to_display(project.name))}
+#: Configuration slug for lib_layered_config Linux paths and environment variables
+LAYEREDCONF_SLUG: str = {_quote(project.shell_command)}
+
 
 def print_info() -> None:
     """Print the summarised metadata block used by the CLI ``info`` command.
@@ -566,13 +576,8 @@ def bootstrap_dev() -> None:
         ci_token = os.getenv("CI", "").strip().lower()
         is_ci = ci_token in {"1", "true", "yes"}
         sha_error = "sha256" in combined_output and "hash" in combined_output
-        # Debian package manager conflict: pip was installed by system package manager
-        debian_pip_error = "record file not found" in combined_output or "installed by debian" in combined_output
-        if (is_ci and sha_error) or debian_pip_error:
-            if sha_error:
-                print("[bootstrap] pip upgrade failed due to SHA256 verification; continuing on CI")
-            if debian_pip_error:
-                print("[bootstrap] pip upgrade failed due to Debian package manager conflict; continuing with system pip")
+        if is_ci and sha_error:
+            print("[bootstrap] pip upgrade failed due to SHA256 verification; continuing on CI")
         else:
             if pip_upgrade.out:
                 print(pip_upgrade.out, end="")
