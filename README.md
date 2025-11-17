@@ -11,6 +11,7 @@
 [![codecov](https://codecov.io/gh/bitranox/bitranox_template_py_lib/graph/badge.svg?token=UFBaUDIgRk)](https://codecov.io/gh/bitranox/bitranox_template_py_lib)
 [![Maintainability](https://qlty.sh/badges/041ba2c1-37d6-40bb-85a0-ec5a8a0aca0c/maintainability.svg)](https://qlty.sh/gh/bitranox/projects/bitranox_template_py_lib)
 [![Known Vulnerabilities](https://snyk.io/test/github/bitranox/bitranox_template_py_lib/badge.svg)](https://snyk.io/test/github/bitranox/bitranox_template_py_lib)
+[![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
 Template for backward compatible (3.9 upwards) python libs with registered cli commands
 - CLI entry point styled with rich-click (rich output + click ergonomics)
