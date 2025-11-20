@@ -367,7 +367,7 @@ def _get_toml_module() -> ModuleType:
         return _toml_module
 
     try:
-        import tomllib as module
+        import tomllib as module  # type: ignore[import-not-found]
     except ImportError:
         import tomli as module  # type: ignore[import-not-found,no-redef]
 
