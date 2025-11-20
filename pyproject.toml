@@ -42,7 +42,8 @@ dev = [
   "codecov-cli>=11.2.3",
   "pip-audit>=2.9.0",
   "textual>=6.3.0",
-  "import-linter>=2.5.2"
+  "import-linter>=2.5.2",
+  "setuptools>=78.1.1"
 ]
 
 [project.scripts]
