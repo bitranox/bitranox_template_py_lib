@@ -107,21 +107,69 @@ def _parse_version_constraint(spec: str) -> tuple[str, str, str, str]:
     return name, constraint, min_version, upper_bound
 
 
-def _fetch_latest_version(package_name: str) -> str | None:
-    """Fetch the latest version of a package from PyPI."""
+def _fetch_pypi_data(package_name: str) -> dict[str, Any] | None:
+    """Fetch package data from PyPI."""
     normalized = _normalize_name(package_name)
     url = f"https://pypi.org/pypi/{normalized}/json"
 
     try:
         with urllib.request.urlopen(url, timeout=10) as response:
-            data = json.loads(response.read().decode("utf-8"))
-            return str(data.get("info", {}).get("version", ""))
+            return json.loads(response.read().decode("utf-8"))  # type: ignore[no-any-return]
     except urllib.error.HTTPError as e:
         if e.code == 404:
             return None
         return None
     except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
         return None
+
+
+def _fetch_latest_version(package_name: str) -> str | None:
+    """Fetch the latest version of a package from PyPI."""
+    data = _fetch_pypi_data(package_name)
+    if data is None:
+        return None
+    return str(data.get("info", {}).get("version", ""))
+
+
+def _fetch_latest_version_below(package_name: str, upper_bound: str) -> str | None:
+    """Fetch the latest version of a package that is below the upper bound.
+
+    Args:
+        package_name: Name of the package
+        upper_bound: Upper version bound (exclusive), e.g., "9" for "<9"
+
+    Returns:
+        Latest version string below the bound, or None if not found
+    """
+    data = _fetch_pypi_data(package_name)
+    if data is None:
+        return None
+
+    releases = data.get("releases", {})
+    if not releases:
+        return None
+
+    # Get all version strings and filter to those below upper_bound
+    valid_versions: list[tuple[tuple[int, ...], str]] = []
+    for version_str in releases.keys():
+        # Skip pre-release versions (containing a, b, rc, dev, etc.)
+        if re.search(r"(a|b|rc|dev|alpha|beta)", version_str, re.IGNORECASE):
+            continue
+
+        version_tuple = _parse_version_tuple(version_str)
+        if not version_tuple:
+            continue
+
+        # Check if version is below upper_bound
+        if not _version_gte(version_str, upper_bound):
+            valid_versions.append((version_tuple, version_str))
+
+    if not valid_versions:
+        return None
+
+    # Sort by version tuple (descending) and return the highest
+    valid_versions.sort(reverse=True, key=lambda x: x[0])
+    return valid_versions[0][1]
 
 
 def _parse_version_tuple(v: str) -> tuple[int, ...]:
@@ -180,22 +228,35 @@ def _extract_dependencies_from_list(
         if not name:
             continue
 
-        latest = _fetch_latest_version(name)
-        if latest is None:
+        # Fetch latest version (respecting upper bound if present)
+        latest_absolute = _fetch_latest_version(name)
+        if latest_absolute is None:
             status = "error"
             latest_str = "not found"
+            latest_in_range = None
         elif not min_version:
             status = "unknown"
-            latest_str = latest
-        else:
-            # Check if latest meets or exceeds upper bound - if so, it's "pinned" not "outdated"
-            # For "<1.28" constraint, if latest is 1.28.0, we're pinned (latest >= upper_bound)
-            if upper_bound and _version_gte(latest, upper_bound):
-                # Latest version meets or exceeds our upper bound, so we're intentionally pinned
+            latest_str = latest_absolute
+            latest_in_range = None
+        elif upper_bound and _version_gte(latest_absolute, upper_bound):
+            # Latest version exceeds our upper bound - check for updates within range
+            latest_in_range = _fetch_latest_version_below(name, upper_bound)
+            if latest_in_range is None:
                 status = "pinned"
+                latest_str = f"{latest_absolute} (pinned <{upper_bound})"
+            elif _version_gte(min_version, latest_in_range):
+                # We're at the latest version within the allowed range
+                status = "pinned"
+                latest_str = f"{latest_absolute} (pinned <{upper_bound})"
             else:
-                status = _compare_versions(min_version, latest)
-            latest_str = latest
+                # There's a newer version within the allowed range
+                status = "outdated"
+                latest_str = f"{latest_in_range} (max <{upper_bound}, absolute: {latest_absolute})"
+        else:
+            # No upper bound constraint or latest is within range
+            status = _compare_versions(min_version, latest_absolute)
+            latest_str = latest_absolute
+            latest_in_range = None
 
         results.append(
             DependencyInfo(
