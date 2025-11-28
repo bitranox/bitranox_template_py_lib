@@ -45,8 +45,9 @@ class DependencyInfo:
     constraint: str
     current_min: str
     latest: str
-    status: str  # "up-to-date", "outdated", "unknown", "error"
+    status: str  # "up-to-date", "outdated", "pinned", "unknown", "error"
     original_spec: str = ""  # Original dependency specification string
+    upper_bound: str = ""  # Upper version bound if specified (e.g., "<9" means "9")
 
 
 def _normalize_name(name: str) -> str:
@@ -54,17 +55,18 @@ def _normalize_name(name: str) -> str:
     return re.sub(r"[-_.]+", "-", name).lower()
 
 
-def _parse_version_constraint(spec: str) -> tuple[str, str, str]:
-    """Parse a dependency spec into (name, constraint, minimum_version).
+def _parse_version_constraint(spec: str) -> tuple[str, str, str, str]:
+    """Parse a dependency spec into (name, constraint, minimum_version, upper_bound).
 
     Examples:
-        "rich-click>=1.9.4" -> ("rich-click", ">=1.9.4", "1.9.4")
-        "tomli>=2.0.0; python_version<'3.11'" -> ("tomli", ">=2.0.0", "2.0.0")
-        "hatchling>=1.27.0" -> ("hatchling", ">=1.27.0", "1.27.0")
+        "rich-click>=1.9.4" -> ("rich-click", ">=1.9.4", "1.9.4", "")
+        "tomli>=2.0.0; python_version<'3.11'" -> ("tomli", ">=2.0.0", "2.0.0", "")
+        "pytest>=8.4.2,<9" -> ("pytest", ">=8.4.2,<9", "8.4.2", "9")
+        "hatchling>=1.27.0" -> ("hatchling", ">=1.27.0", "1.27.0", "")
     """
     spec = spec.strip()
     if not spec:
-        return "", "", ""
+        return "", "", "", ""
 
     # Remove environment markers (e.g., "; python_version<'3.11'")
     marker_idx = spec.find(";")
@@ -83,20 +85,26 @@ def _parse_version_constraint(spec: str) -> tuple[str, str, str]:
     match = re.match(r"^([a-zA-Z0-9_.-]+)\s*((?:[><=!~]+\s*[\d.a-zA-Z*]+\s*,?\s*)+)?$", spec)
     if not match:
         # Fallback: just return the spec as name
-        return spec, "", ""
+        return spec, "", "", ""
 
     name = match.group(1).strip()
     constraint = match.group(2).strip() if match.group(2) else ""
 
     # Extract minimum version from constraint
     min_version = ""
+    upper_bound = ""
     if constraint:
         # Look for >= or == patterns to find minimum version
         version_match = re.search(r"[>=~]=?\s*([\d.]+(?:a\d+|b\d+|rc\d+)?)", constraint)
         if version_match:
             min_version = version_match.group(1)
 
-    return name, constraint, min_version
+        # Look for < or <= patterns to find upper bound (but not !=)
+        upper_match = re.search(r"<(?!=)\s*([\d.]+(?:a\d+|b\d+|rc\d+)?)", constraint)
+        if upper_match:
+            upper_bound = upper_match.group(1)
+
+    return name, constraint, min_version, upper_bound
 
 
 def _fetch_latest_version(package_name: str) -> str | None:
@@ -157,7 +165,7 @@ def _extract_dependencies_from_list(
             continue
 
         original_spec = dep.strip()
-        name, constraint, min_version = _parse_version_constraint(dep)
+        name, constraint, min_version, upper_bound = _parse_version_constraint(dep)
         if not name:
             continue
 
@@ -169,7 +177,12 @@ def _extract_dependencies_from_list(
             status = "unknown"
             latest_str = latest
         else:
-            status = _compare_versions(min_version, latest)
+            # Check if latest exceeds upper bound - if so, it's "pinned" not "outdated"
+            if upper_bound and _compare_versions(upper_bound, latest) == "outdated":
+                # Latest version exceeds our upper bound, so we're intentionally pinned
+                status = "pinned"
+            else:
+                status = _compare_versions(min_version, latest)
             latest_str = latest
 
         results.append(
@@ -181,6 +194,7 @@ def _extract_dependencies_from_list(
                 latest=latest_str,
                 status=status,
                 original_spec=original_spec,
+                upper_bound=upper_bound,
             )
         )
 
@@ -367,10 +381,12 @@ def print_report(deps: list[DependencyInfo], *, verbose: bool = False) -> int:
     # Summary
     total = len(deps)
     up_to_date = sum(1 for d in deps if d.status == "up-to-date")
+    pinned = sum(1 for d in deps if d.status == "pinned")
     unknown = sum(1 for d in deps if d.status == "unknown")
 
     print(f"\nSummary: {total} dependencies checked")
     print(f"  Up-to-date: {up_to_date}")
+    print(f"  Pinned:     {pinned}")
     print(f"  Outdated:   {outdated_count}")
     print(f"  Unknown:    {unknown}")
     print(f"  Errors:     {error_count}")
@@ -386,6 +402,7 @@ def _get_status_icon(status: str) -> str:
     icons = {
         "up-to-date": "✓",
         "outdated": "⚠",
+        "pinned": "📌",
         "unknown": "?",
         "error": "✗",
     }
