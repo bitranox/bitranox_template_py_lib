@@ -859,7 +859,7 @@ def _check_installed_dependencies() -> None:
         click.echo(f"\n[dependencies] {len(missing)} packages are NOT installed:\n")
         name_width = max(len(name) for name, _ in missing)
         for name, required in sorted(missing):
-            click.echo(f"  ✗ {name:<{name_width}}  (requires >={required})")
+            click.echo(f"  [X] {name:<{name_width}}  (requires >={required})")
 
     # Display outdated installed packages
     if outdated_installed:
@@ -867,7 +867,7 @@ def _check_installed_dependencies() -> None:
         name_width = max(len(name) for name, _, _, _ in outdated_installed)
         installed_width = max(len(installed) for _, installed, _, _ in outdated_installed)
         for name, installed, required, latest in sorted(outdated_installed):
-            click.echo(f"  ⚠ {name:<{name_width}}  {installed:<{installed_width}}  (requires >={required}, latest: {latest})")
+            click.echo(f"  [!] {name:<{name_width}}  {installed:<{installed_width}}  (requires >={required}, latest: {latest})")
 
     total_issues = len(missing) + len(outdated_installed)
     click.echo("")

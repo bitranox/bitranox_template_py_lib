@@ -398,15 +398,15 @@ def print_report(deps: list[DependencyInfo], *, verbose: bool = False) -> int:
 
 
 def _get_status_icon(status: str) -> str:
-    """Get a status icon character."""
+    """Get a status icon character (ASCII-safe for Windows compatibility)."""
     icons = {
-        "up-to-date": "✓",
-        "outdated": "⚠",
-        "pinned": "📌",
-        "unknown": "?",
-        "error": "✗",
+        "up-to-date": "[ok]",
+        "outdated": "[!!]",
+        "pinned": "[==]",
+        "unknown": "[??]",
+        "error": "[XX]",
     }
-    return icons.get(status, "?")
+    return icons.get(status, "[??]")
 
 
 def _build_updated_spec(dep: DependencyInfo) -> str:
