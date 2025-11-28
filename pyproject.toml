@@ -54,7 +54,8 @@ bitranox_template_py_lib = "bitranox_template_py_lib.cli:main"
 bitranox-template-py-cli = "bitranox_template_py_lib.cli:main"
 
 [build-system]
-requires = ["hatchling>=1.28.0"]
+# hatchling 1.28+ requires Python 3.10+, so we cap at 1.27.x for Python 3.9 compatibility
+requires = ["hatchling>=1.27.0,<1.28"]
 build-backend = "hatchling.build"
 
 

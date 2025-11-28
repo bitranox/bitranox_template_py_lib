@@ -124,24 +124,35 @@ def _fetch_latest_version(package_name: str) -> str | None:
         return None
 
 
+def _parse_version_tuple(v: str) -> tuple[int, ...]:
+    """Parse version string into a tuple of integers for comparison."""
+    match = re.match(r"^([\d.]+)", v)
+    if not match:
+        return ()
+    numeric = match.group(1)
+    return tuple(int(p) for p in numeric.split(".") if p.isdigit())
+
+
+def _version_gte(version_a: str, version_b: str) -> bool:
+    """Check if version_a >= version_b."""
+    a_parts = _parse_version_tuple(version_a)
+    b_parts = _parse_version_tuple(version_b)
+
+    # Pad to same length
+    max_len = max(len(a_parts), len(b_parts))
+    a_padded = a_parts + (0,) * (max_len - len(a_parts))
+    b_padded = b_parts + (0,) * (max_len - len(b_parts))
+
+    return a_padded >= b_padded
+
+
 def _compare_versions(current: str, latest: str) -> str:
     """Compare two version strings and return status."""
     if not current or not latest:
         return "unknown"
 
-    def parse_version(v: str) -> tuple[tuple[int, ...], str]:
-        """Parse version into (numeric_parts, suffix)."""
-        # Strip any pre-release suffixes
-        match = re.match(r"^([\d.]+)(.*)?$", v)
-        if not match:
-            return ((), v)
-        numeric = match.group(1)
-        suffix = match.group(2) or ""
-        parts = tuple(int(p) for p in numeric.split(".") if p.isdigit())
-        return (parts, suffix)
-
-    current_parts, _ = parse_version(current)
-    latest_parts, _ = parse_version(latest)
+    current_parts = _parse_version_tuple(current)
+    latest_parts = _parse_version_tuple(latest)
 
     # Pad to same length for comparison
     max_len = max(len(current_parts), len(latest_parts))
@@ -177,9 +188,10 @@ def _extract_dependencies_from_list(
             status = "unknown"
             latest_str = latest
         else:
-            # Check if latest exceeds upper bound - if so, it's "pinned" not "outdated"
-            if upper_bound and _compare_versions(upper_bound, latest) == "outdated":
-                # Latest version exceeds our upper bound, so we're intentionally pinned
+            # Check if latest meets or exceeds upper bound - if so, it's "pinned" not "outdated"
+            # For "<1.28" constraint, if latest is 1.28.0, we're pinned (latest >= upper_bound)
+            if upper_bound and _version_gte(latest, upper_bound):
+                # Latest version meets or exceeds our upper bound, so we're intentionally pinned
                 status = "pinned"
             else:
                 status = _compare_versions(min_version, latest)
