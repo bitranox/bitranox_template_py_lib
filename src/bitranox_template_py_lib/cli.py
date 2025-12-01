@@ -1,25 +1,22 @@
 """CLI adapter wiring the behavior helpers into a rich-click interface.
 
-Purpose
--------
 Expose a stable command-line surface using rich-click for consistent,
 beautiful terminal output. The CLI delegates to behavior helpers while
 maintaining clean separation of concerns.
 
-Contents
---------
-* :data:`CLICK_CONTEXT_SETTINGS` – shared Click settings for consistent help.
-* :func:`cli` – root command group with global options.
-* :func:`cli_info` – print package metadata.
-* :func:`cli_hello` – demonstrate success path.
-* :func:`cli_fail` – demonstrate error handling.
-* :func:`main` – entry point for console scripts.
+Contents:
+    CLICK_CONTEXT_SETTINGS: Shared Click settings for consistent help.
+    cli: Root command group with global options.
+    cli_info: Print package metadata.
+    cli_hello: Demonstrate success path.
+    cli_fail: Demonstrate error handling.
+    main: Entry point for console scripts.
 
-System Role
------------
-The CLI is the primary adapter for local development workflows. Packaging
-targets register the console script defined in __init__conf__. The module
-entry point (python -m) reuses the same helpers for consistency.
+Note:
+    The CLI is the primary adapter for local development workflows. Packaging
+    targets register the console script defined in __init__conf__. The module
+    entry point (python -m) reuses the same helpers for consistency.
+
 """
 
 from __future__ import annotations
@@ -63,15 +60,19 @@ def cli(ctx: click.Context, traceback: bool) -> None:
     When invoked without a subcommand, displays help unless --traceback
     is explicitly provided (for backward compatibility).
 
-    Examples
-    --------
-    >>> from click.testing import CliRunner
-    >>> runner = CliRunner()
-    >>> result = runner.invoke(cli, ["hello"])
-    >>> result.exit_code
-    0
-    >>> "Hello World" in result.output
-    True
+    Args:
+        ctx: Click context object for the command group.
+        traceback: Whether to show full Python traceback on errors.
+
+    Examples:
+        >>> from click.testing import CliRunner
+        >>> runner = CliRunner()
+        >>> result = runner.invoke(cli, ["hello"])
+        >>> result.exit_code
+        0
+        >>> "Hello World" in result.output
+        True
+
     """
     # Store traceback preference in context
     ctx.ensure_object(dict)
@@ -116,21 +117,17 @@ def main(
 
     This is the entry point used by console scripts and python -m execution.
 
-    Parameters
-    ----------
-    argv:
-        Optional sequence of CLI arguments. None uses sys.argv.
+    Args:
+        argv: Optional sequence of CLI arguments. None uses sys.argv.
 
-    Returns
-    -------
-    int
+    Returns:
         Exit code: 0 for success, non-zero for errors.
 
-    Examples
-    --------
-    >>> main(["hello"])
-    Hello World
-    0
+    Examples:
+        >>> main(["hello"])
+        Hello World
+        0
+
     """
     # Check if --no-traceback flag is in arguments (default is to show traceback)
     import sys as _sys

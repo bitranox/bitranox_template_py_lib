@@ -1,20 +1,16 @@
 """Static package metadata surfaced to CLI commands and documentation.
 
-Purpose
--------
 Expose the current project metadata as simple constants. These values are kept
 in sync with ``pyproject.toml`` by development automation (tests, push
 pipelines), so runtime code does not query packaging metadata.
 
-Contents
---------
-* Module-level constants describing the published package.
-* :func:`print_info` rendering the constants for the CLI ``info`` command.
+Contents:
+    Module-level constants describing the published package.
+    print_info: Render the constants for the CLI ``info`` command.
 
-System Role
------------
-Lives in the adapters/platform layer; CLI transports import these constants to
-present authoritative project information without invoking packaging APIs.
+Note:
+    Lives in the adapters/platform layer; CLI transports import these constants
+    to present authoritative project information without invoking packaging APIs.
 """
 
 from __future__ import annotations
@@ -45,18 +41,16 @@ LAYEREDCONF_SLUG: str = "bitranox_template_py_lib"
 def print_info() -> None:
     """Print the summarised metadata block used by the CLI ``info`` command.
 
-    Why
-        Provides a single, auditable rendering function so documentation and
-        CLI output always match the system design reference.
+    Provide a single, auditable rendering function so documentation and
+    CLI output always match the system design reference.
 
-    Side Effects
+    Note:
         Writes to ``stdout``.
 
-    Examples
-    --------
-    >>> print_info()  # doctest: +ELLIPSIS
-    Info for bitranox_template_py_lib:
-    ...
+    Examples:
+        >>> print_info()  # doctest: +ELLIPSIS
+        Info for bitranox_template_py_lib:
+        ...
     """
 
     fields = [

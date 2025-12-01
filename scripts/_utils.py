@@ -1,22 +1,20 @@
 """Shared automation utilities for project scripts.
 
-Purpose
--------
 Collect helper functions used by the ``scripts/`` entry points (build, test,
-release) so git helpers and subprocess wrappers live in one place. The behaviour mirrors the operational guidance described in
-``docs/systemdesign/module_reference.md`` and ``DEVELOPMENT.md``.
+release) so git helpers and subprocess wrappers live in one place. The behaviour
+mirrors the operational guidance described in ``docs/systemdesign/module_reference.md``
+and ``DEVELOPMENT.md``.
 
-Contents
---------
-* ``run`` – subprocess wrapper returning structured results.
-* Metadata helpers (``get_project_metadata`` et al.) for build/test automation.
-* GitHub release helpers and subprocess utilities.
+Contents:
+    run: Subprocess wrapper returning structured results.
+    get_project_metadata: Metadata helpers for build/test automation.
+    GitHub release helpers and subprocess utilities.
 
-System Role
------------
-Provides the scripting boundary of the clean architecture: the core library
-remains framework-agnostic while operational scripts reuse these helpers to
-avoid duplication and keep CI/CD behaviour consistent with documentation.
+Note:
+    Provides the scripting boundary of the clean architecture: the core library
+    remains framework-agnostic while operational scripts reuse these helpers to
+    avoid duplication and keep CI/CD behaviour consistent with documentation.
+
 """
 
 from __future__ import annotations
@@ -44,6 +42,7 @@ class RunResult:
         code: Exit code from the process
         out: Captured stdout content
         err: Captured stderr content
+
     """
 
     code: int
@@ -124,21 +123,16 @@ _toml_module: Any = None
 def _get_toml_module() -> Any:
     """Return tomllib (Python 3.11+) or tomli backport (Python 3.9-3.10).
 
-    Purpose
-    -------
     Ensure TOML parsing works across Python 3.9+ by using the standard
     library tomllib on 3.11+ and falling back to the tomli package
     on earlier versions.
 
-    Returns
-    -------
-    module
+    Returns:
         Either tomllib or tomli with identical interfaces.
 
-    Raises
-    ------
-    ModuleNotFoundError
-        If neither tomllib nor tomli can be imported.
+    Raises:
+        ModuleNotFoundError: If neither tomllib nor tomli can be imported.
+
     """
     global _toml_module
     if _toml_module is not None:
@@ -204,6 +198,7 @@ def _package_name_to_display(value: str) -> str:
     Examples:
         "check_zpool_status" -> "Check ZPool Status"
         "my-cool-app" -> "My Cool App"
+
     """
     # Replace underscores and hyphens with spaces
     normalized = value.replace("_", " ").replace("-", " ")
@@ -348,6 +343,7 @@ def _parse_repo_url(repo_url: str) -> tuple[str, str, str]:
 
     Returns:
         Tuple of (host, owner, name). Empty strings if parsing fails.
+
     """
     if not repo_url:
         return "", "", ""
@@ -374,6 +370,7 @@ def _extract_author_info(
 
     Returns:
         Tuple of (author_name, author_email)
+
     """
     authors_list = _get_authors_list(project_table)
     author_name, author_email = _find_first_author(authors_list)
@@ -424,6 +421,7 @@ def _extract_summary(
 
     Returns:
         Summary string
+
     """
     summary = description.strip() if description else ""
     if not summary:
@@ -539,21 +537,17 @@ def _render_metadata_module(project: ProjectMetadata) -> str:
     homepage = project.homepage or project.repo_url or ""
     body = f'''"""Static package metadata surfaced to CLI commands and documentation.
 
-Purpose
--------
 Expose the current project metadata as simple constants. These values are kept
 in sync with ``pyproject.toml`` by development automation (tests, push
 pipelines), so runtime code does not query packaging metadata.
 
-Contents
---------
-* Module-level constants describing the published package.
-* :func:`print_info` rendering the constants for the CLI ``info`` command.
+Contents:
+    Module-level constants describing the published package.
+    print_info: Render the constants for the CLI ``info`` command.
 
-System Role
------------
-Lives in the adapters/platform layer; CLI transports import these constants to
-present authoritative project information without invoking packaging APIs.
+Note:
+    Lives in the adapters/platform layer; CLI transports import these constants
+    to present authoritative project information without invoking packaging APIs.
 """
 
 from __future__ import annotations
@@ -584,18 +578,16 @@ LAYEREDCONF_SLUG: str = {_quote(project.shell_command)}
 def print_info() -> None:
     """Print the summarised metadata block used by the CLI ``info`` command.
 
-    Why
-        Provides a single, auditable rendering function so documentation and
-        CLI output always match the system design reference.
+    Provide a single, auditable rendering function so documentation and
+    CLI output always match the system design reference.
 
-    Side Effects
+    Note:
         Writes to ``stdout``.
 
-    Examples
-    --------
-    >>> print_info()  # doctest: +ELLIPSIS
-    Info for {project.name}:
-    ...
+    Examples:
+        >>> print_info()  # doctest: +ELLIPSIS
+        Info for {project.name}:
+        ...
     """
 
     fields = [
@@ -789,6 +781,7 @@ def get_default_remote(pyproject: Path = Path("pyproject.toml")) -> str:
 
     Returns:
         The configured default remote, or "origin" if not configured.
+
     """
     try:
         data = _load_pyproject(pyproject)

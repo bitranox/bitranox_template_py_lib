@@ -14,19 +14,15 @@ ANSI_ESCAPE_PATTERN = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
 def _remove_ansi_codes(text: str) -> str:
     """Return text stripped of ANSI escape sequences.
 
-    Why
-        Tests compare human-readable CLI output; stripping colour codes keeps
-        assertions stable across environments.
+    Tests compare human-readable CLI output; stripping colour codes keeps
+    assertions stable across environments.
 
-    Parameters
-    ----------
-    text:
-        Raw string captured from CLI output.
+    Args:
+        text: Raw string captured from CLI output.
 
-    Returns
-    -------
-    str
+    Returns:
         The string without ANSI escape sequences.
+
     """
     return ANSI_ESCAPE_PATTERN.sub("", text)
 

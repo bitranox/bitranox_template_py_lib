@@ -1,24 +1,21 @@
 """Automation target metadata shared by CLI helpers and interactive tools.
 
-Purpose
--------
 Provide a single source of truth for the project's automation targets so the
 command-line interface, Makefile delegations, and the Textual TUI all present
 consistent names, descriptions, and environment-based defaults.
 
-Contents
---------
-* ``ParamSpec`` – describes tunable environment parameters exposed to users.
-* ``TargetSpec`` – captures a Make/CLI target and its description.
-* ``get_targets`` – returns the current targets with environment defaults.
-* ``iter_help_rows`` – yields ``(name, description)`` pairs for help output.
+Contents:
+    ParamSpec: Describes tunable environment parameters exposed to users.
+    TargetSpec: Captures a Make/CLI target and its description.
+    get_targets: Return the current targets with environment defaults.
+    iter_help_rows: Yield ``(name, description)`` pairs for help output.
 
-System Role
------------
-Keeps automation metadata aligned with documentation and developer workflow
-guidance by centralising the definitions referenced by ``scripts.menu`` and
-``scripts.help``. This reduces duplication and ensures future changes remain
-cohesive across interfaces.
+Note:
+    Keeps automation metadata aligned with documentation and developer workflow
+    guidance by centralising the definitions referenced by ``scripts.menu`` and
+    ``scripts.help``. This reduces duplication and ensures future changes remain
+    cohesive across interfaces.
+
 """
 
 from __future__ import annotations

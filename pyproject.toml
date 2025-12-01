@@ -43,7 +43,7 @@ dev = [
   "twine>=6.2.0",
   "codecov-cli>=11.2.5",
   "pip-audit>=2.9.0",
-  "textual>=6.6.0",
+  "textual>=6.7.1",
   "import-linter>=2.5.2,<2.6; python_version<'3.10'",
   "import-linter>=2.7; python_version>='3.10'",
   "setuptools>=80.9.0"
@@ -67,6 +67,9 @@ include = ["src/bitranox_template_py_lib/py.typed"]
 [tool.ruff]
 line-length = 160
 target-version = "py39"
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
 # ignore the "unused import sys" in the jupyter notebook - which we need (it is a linter hickup)
