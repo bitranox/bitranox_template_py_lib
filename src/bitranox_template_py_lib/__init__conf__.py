@@ -20,7 +20,7 @@ name = "bitranox_template_py_lib"
 #: Human-readable summary shown in CLI help output.
 title = "Template for backward compatible python libs with registered cli commands"
 #: Current release version pulled from ``pyproject.toml`` by automation.
-version = "1.0.0"
+version = "1.0.1"
 #: Repository homepage presented to users.
 homepage = "https://github.com/bitranox/bitranox_template_py_lib"
 #: Author attribution surfaced in CLI output.
