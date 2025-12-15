@@ -21,20 +21,61 @@ Note:
 
 from __future__ import annotations
 
-from typing import Optional, Sequence
+import sys
+from collections.abc import Sequence
 
 import rich_click as click
+from click.core import ParameterSource
 from rich.console import Console
+from rich.style import Style
 from rich.traceback import Traceback, install as install_rich_traceback
 
 from . import __init__conf__
 from .behaviors import emit_greeting, noop_main, raise_intentional_failure
+
+__all__ = [
+    "CLICK_CONTEXT_SETTINGS",
+    "cli",
+    "cli_fail",
+    "cli_hello",
+    "cli_info",
+    "console",
+    "main",
+]
 
 #: Shared Click context flags for consistent help output.
 CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}  # noqa: C408
 
 #: Console for rich output
 console = Console()
+
+#: Style for error messages when traceback is suppressed
+ERROR_STYLE = Style(color="red", bold=True)
+
+
+def _exit_code_from(exc: SystemExit) -> int:
+    """Extract integer exit code from SystemExit.
+
+    Args:
+        exc: The SystemExit exception to extract the code from.
+
+    Returns:
+        Integer exit code: the code itself if int, 1 if truthy, 0 if falsy.
+
+    Examples:
+        >>> _exit_code_from(SystemExit(0))
+        0
+        >>> _exit_code_from(SystemExit(42))
+        42
+        >>> _exit_code_from(SystemExit("error"))
+        1
+        >>> _exit_code_from(SystemExit(None))
+        0
+
+    """
+    if isinstance(exc.code, int):
+        return exc.code
+    return 1 if exc.code else 0
 
 
 @click.group(
@@ -74,15 +115,13 @@ def cli(ctx: click.Context, traceback: bool) -> None:
         True
 
     """
-    # Store traceback preference in context
+    # Store traceback preference in context object
+    # Context uses dict[str, bool] with key "traceback" for traceback flag
     ctx.ensure_object(dict)
     ctx.obj["traceback"] = traceback
 
     # Show help if no subcommand and no explicit option
     if ctx.invoked_subcommand is None:
-        # Check if traceback flag was explicitly provided
-        from click.core import ParameterSource
-
         source = ctx.get_parameter_source("traceback")
         if source not in (ParameterSource.DEFAULT, None):
             # Traceback was explicitly set, run default behavior
@@ -110,9 +149,7 @@ def cli_fail() -> None:
     raise_intentional_failure()
 
 
-def main(
-    argv: Optional[Sequence[str]] = None,
-) -> int:
+def main(argv: Sequence[str] | None = None) -> int:
     """Execute the CLI and return the exit code.
 
     This is the entry point used by console scripts and python -m execution.
@@ -129,37 +166,39 @@ def main(
         0
 
     """
-    # Check if --no-traceback flag is in arguments (default is to show traceback)
-    import sys as _sys
-
-    argv_list = list(argv) if argv else _sys.argv[1:]
+    argv_list = list(argv) if argv else sys.argv[1:]
     show_traceback = "--no-traceback" not in argv_list
 
-    # Install rich traceback with locals if requested
     if show_traceback:
         install_rich_traceback(show_locals=True)
 
     try:
-        # Use standalone_mode=False to catch exceptions ourselves
         cli(args=argv, standalone_mode=False, prog_name=__init__conf__.shell_command)
         return 0
-    except SystemExit as e:
-        return e.code if isinstance(e.code, int) else (1 if e.code else 0)
+    except SystemExit as exc:
+        return _exit_code_from(exc)
     except Exception as exc:
-        if show_traceback:
-            # Show full rich traceback with locals
-            tb = Traceback.from_exception(
-                type(exc),
-                exc,
-                exc.__traceback__,
-                show_locals=True,
-                width=120,
-            )
-            console.print(tb)
-        else:
-            # Show simple error message without traceback
-            from rich.style import Style
-
-            error_style = Style(color="red", bold=True)
-            console.print(f"Error: {type(exc).__name__}: {exc}", style=error_style)
+        _print_error(exc, show_traceback=show_traceback)
         return 1
+
+
+def _print_error(exc: Exception, *, show_traceback: bool) -> None:
+    """Print error to console with or without full traceback.
+
+    Args:
+        exc: The exception to display.
+        show_traceback: If True, show full rich traceback with locals.
+            If False, show simple one-line error message.
+
+    """
+    if show_traceback:
+        tb = Traceback.from_exception(
+            type(exc),
+            exc,
+            exc.__traceback__,
+            show_locals=True,
+            width=120,
+        )
+        console.print(tb)
+    else:
+        console.print(f"Error: {type(exc).__name__}: {exc}", style=ERROR_STYLE)

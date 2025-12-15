@@ -2,13 +2,11 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
-
 import pytest
 from click.testing import CliRunner, Result
 
-from bitranox_template_py_lib import cli as cli_mod
 from bitranox_template_py_lib import __init__conf__
+from bitranox_template_py_lib import cli as cli_mod
 
 
 @pytest.mark.os_agnostic
@@ -52,40 +50,28 @@ def test_when_traceback_is_requested_without_command_the_domain_runs(
 
 
 @pytest.mark.os_agnostic
-def test_default_shows_traceback(
-    capsys: pytest.CaptureFixture[str],
-    strip_ansi: Callable[[str], str],
-) -> None:
+def test_default_shows_traceback(capsys: pytest.CaptureFixture[str]) -> None:
     """By default (no flags), full traceback should appear on errors."""
-    # Call main without any flags
     exit_code = cli_mod.main(["fail"])
 
-    # Should return non-zero exit code
     assert exit_code != 0
 
-    # Should show traceback in output (default behavior)
     captured = capsys.readouterr()
     output = captured.out + captured.err
     assert "Traceback" in output
 
 
 @pytest.mark.os_agnostic
-def test_no_traceback_flag_suppresses_traceback(
-    capsys: pytest.CaptureFixture[str],
-    strip_ansi: Callable[[str], str],
-) -> None:
+def test_no_traceback_flag_suppresses_traceback(capsys: pytest.CaptureFixture[str]) -> None:
     """When --no-traceback is used, only simple error message should appear."""
-    # Call main with --no-traceback flag
     exit_code = cli_mod.main(["--no-traceback", "fail"])
 
-    # Should return non-zero exit code
     assert exit_code != 0
 
-    # Should NOT show full traceback, just simple error
     captured = capsys.readouterr()
     output = captured.out + captured.err
     assert "Error: RuntimeError: I should fail" in output
-    assert "Traceback" not in output or output.count("Traceback") == 0
+    assert "Traceback" not in output
 
 
 @pytest.mark.os_agnostic
