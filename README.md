@@ -38,14 +38,13 @@ For alternative install paths (pip, pipx, uv, uvx source builds, etc.), see
 
 ### Python 3.9+ Baseline
 
-- The project targets **Python 3.9 and newer**. 
-- Runtime dependencies stay on the current stable releases (`rich-click>=1.9.4`
-  for beautiful CLI output, `tomli>=2.0.0` for Python 3.9-3.10 TOML parsing) and
-  keeps pytest, ruff, pyright, bandit, build, twine, codecov-cli, pip-audit,
-  textual, and import-linter pinned to their newest majors.
+- The project targets **Python 3.9 and newer**.
+- Runtime dependencies: `rich-click>=1.9.4` for beautiful CLI output,
+  `rtoml>=0.13.0` for fast TOML parsing across all Python versions.
+- Dev dependencies: pytest, ruff, pyright, bandit, build, twine, codecov-cli,
+  pip-audit, textual, and import-linter pinned to their newest majors.
 - CI workflows exercise GitHub's rolling runner images (`ubuntu-latest`,
-  `macos-latest`, `windows-latest`) and cover CPython 3.9+ alongside the latest
-  available 3.x release provided by Actions.
+  `macos-latest`, `windows-latest`) and cover CPython 3.9 through 3.13.
 
 
 ## Usage

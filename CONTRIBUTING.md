@@ -18,10 +18,12 @@ Thanks for helping improve **bitranox_template_py_lib**. The sections below summ
 
 ## 3. Coding Standards
 
-- Apply the repository’s Clean Architecture / SOLID rules (see `AGENTS.md` and the system prompts listed there).
+- Apply the repository's Clean Architecture / SOLID rules (see `CLAUDE.md` and the system prompts listed there).
 - Prefer small, single-purpose modules and functions; avoid mixing orthogonal concerns.
 - Free functions and modules use `snake_case`; classes are `PascalCase`.
 - Keep runtime dependencies minimal. Use the standard library where practical.
+- Use modern type hints (`X | None` over `Optional[X]`), Google-style docstrings with doctests.
+- All imports at module top; use `__all__` for explicit public API exports.
 
 ## 4. Tests & Tooling
 

@@ -35,11 +35,13 @@ separation that would be overkill for this minimal template.
 
 * Extracted the behaviour helpers into ``behaviors.py`` so both CLI and library
   consumers have a single cohesive module documenting the temporary domain.
-* Simplified ``cli.py`` to import the behaviour helpers, added explicit
-  functions for applying and restoring traceback preferences, and centralised
-  the exit-code handling used by both entry points.
-* Reduced ``__main__.py`` to a thin wrapper delegating to the CLI helper while
-  sharing the same traceback state restoration helpers.
+* Simplified ``cli.py`` to import the behaviour helpers, with all imports at
+  module top for better readability and static analysis.
+* Added helper functions ``_exit_code_from()`` and ``_print_error()`` to handle
+  exit code extraction and error formatting with clear single responsibilities.
+* Used modern type hints (``X | None`` syntax) and explicit ``__all__`` exports
+  for clear public API surface.
+* Reduced ``__main__.py`` to a thin wrapper delegating to the CLI helper.
 * Re-exported the helpers through ``__init__.py`` so CLI and library imports
   draw from the same source.
 * Documented the responsibilities in this module reference so future refactors
@@ -55,9 +57,10 @@ stand-in domain.
 
 **Data Flow:**
 1. CLI parses options with rich-click.
-2. Rich traceback is installed when ``--traceback`` flag is provided.
+2. Rich traceback is installed by default (``--no-traceback`` disables it).
 3. Commands delegate to behaviour helpers.
-4. Exit codes and exceptions are handled by Click and Rich.
+4. Exceptions are caught and formatted via ``_print_error()``.
+5. Exit codes are extracted via ``_exit_code_from()`` for proper shell integration.
 
 **System Dependencies:**
 * ``rich_click`` for CLI UX with beautiful output
@@ -90,18 +93,26 @@ stand-in domain.
 * **Output:** Returns ``None``.
 * **Location:** src/bitranox_template_py_lib/behaviors.py
 
-### cli.apply_traceback_preferences
+### cli._exit_code_from
 
-* **Purpose:** Synchronise traceback configuration between the CLI and ``python -m`` paths.
-* **Input:** Boolean flag enabling rich tracebacks.
-* **Output:** Installs rich traceback handler with show_locals=True.
+* **Purpose:** Extract integer exit code from SystemExit exceptions.
+* **Input:** SystemExit exception instance.
+* **Output:** Integer exit code (the code itself if int, 1 if truthy, 0 if falsy).
+* **Location:** src/bitranox_template_py_lib/cli.py
+
+### cli._print_error
+
+* **Purpose:** Print error to console with or without full traceback.
+* **Input:** Exception instance and boolean show_traceback flag.
+* **Output:** Prints rich traceback (with locals) or simple error message to console.
 * **Location:** src/bitranox_template_py_lib/cli.py
 
 ### cli.main
 
-* **Purpose:** Execute the click command group with shared exit handling.
-* **Input:** Optional argv, restore flag, summary and verbose limits.
-* **Output:** Integer exit code (0 on success, mapped error codes otherwise).
+* **Purpose:** Entry point for console scripts and module execution, handling
+  exit codes and exception propagation.
+* **Input:** Optional argv sequence (defaults to sys.argv[1:]).
+* **Output:** Integer exit code (0 for success, non-zero for errors).
 * **Location:** src/bitranox_template_py_lib/cli.py
 
 ### cli.cli_info / cli.cli_hello / cli.cli_fail
@@ -110,14 +121,6 @@ stand-in domain.
   intentional failures for testing error handling.
 * **Input:** None (commands receive Click context automatically).
 * **Output:** None (execute their respective behaviors).
-* **Location:** src/bitranox_template_py_lib/cli.py
-
-### cli.main
-
-* **Purpose:** Entry point for console scripts and module execution, handling
-  exit codes and exception propagation.
-* **Input:** Optional argv and standalone_mode flag.
-* **Output:** Integer exit code (0 for success, non-zero for errors).
 * **Location:** src/bitranox_template_py_lib/cli.py
 
 ### __main__
@@ -137,8 +140,10 @@ stand-in domain.
 ### Package Exports
 
 * ``__init__.py`` re-exports behaviour helpers and ``print_info`` for library
-  consumers. No legacy compatibility layer remains; new code should import from
-  the canonical module paths.
+  consumers via explicit ``__all__`` declaration. No legacy compatibility layer
+  remains; new code should import from the canonical module paths.
+* ``cli.py`` exports its public API via ``__all__``: ``CLICK_CONTEXT_SETTINGS``,
+  ``cli``, ``cli_fail``, ``cli_hello``, ``cli_info``, ``console``, ``main``.
 
 ---
 
@@ -160,9 +165,11 @@ stand-in domain.
 
 **Error Handling Strategy:**
 
-* Rich tracebacks are installed when ``--traceback`` flag is provided.
-* Click's built-in exception handling is used with standalone_mode.
-* Exit codes are returned via SystemExit for proper shell integration.
+* Rich tracebacks are installed by default; ``--no-traceback`` suppresses them.
+* Click runs with ``standalone_mode=False`` so exceptions are caught by ``main()``.
+* ``_exit_code_from()`` extracts proper exit codes from SystemExit exceptions.
+* ``_print_error()`` formats exceptions as rich tracebacks or simple error messages.
+* Exit codes are returned via ``raise SystemExit(main())`` for proper shell integration.
 
 ---
 
@@ -172,9 +179,9 @@ stand-in domain.
 
 1. ``bitranox_template_py_lib`` → prints CLI help (no default action).
 2. ``bitranox_template_py_lib hello`` → prints greeting.
-3. ``bitranox_template_py_lib fail`` → prints truncated traceback.
-4. ``bitranox_template_py_lib --traceback fail`` → prints full rich traceback.
-5. ``python -m bitranox_template_py_lib --traceback fail`` → matches console output.
+3. ``bitranox_template_py_lib fail`` → prints full rich traceback (default).
+4. ``bitranox_template_py_lib --no-traceback fail`` → prints simple error message.
+5. ``python -m bitranox_template_py_lib fail`` → matches console script behavior.
 
 **Automated Tests:**
 
@@ -194,9 +201,9 @@ stand-in domain.
 
 **Edge Cases:**
 
-* Running without subcommand delegates to ``noop_main`` (no output).
-* Repeated invocations respect previous traceback preference thanks to
-  restoration helpers.
+* Running without subcommand shows CLI help (default behavior).
+* Running with ``--traceback`` flag explicitly (no subcommand) delegates to ``noop_main``.
+* Traceback preference is determined per-invocation from argv; no global state.
 
 **Test Data:**
 
@@ -247,7 +254,7 @@ stand-in domain.
 ---
 
 **Created:** 2025-09-26 by Codex (automation)
-**Last Updated:** 2025-09-26 by Codex
+**Last Updated:** 2025-12-15 by Claude Code
 **Review Cycle:** Evaluate during next logging feature milestone
 
 ---

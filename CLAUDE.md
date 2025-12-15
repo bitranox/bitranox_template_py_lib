@@ -100,11 +100,34 @@ bitranox_template_py_lib/
 
 ## Coding Style & Naming Conventions
 
-Follow the guidelines in `python_clean_code.md` for all Python code.
+Follow the guidelines in `python_clean_code.md` for all Python code:
+
+- **Functions**: ~20 LOC soft target, cyclomatic complexity ≤10, cognitive complexity ≤15
+- **Parameters**: ≤3 preferred; beyond that consider a parameter object
+- **Nesting**: ≤2 levels; use guard clauses and early returns
+- **Type hints**: Strict mode enforced via pyright; use `X | None` over `Optional[X]`
+- **Imports**: All imports at module top; no deferred imports unless cycle-breaking
+- **Docstrings**: Google-style with Args/Returns/Raises/Examples sections
+- **Exports**: Use `__all__` for explicit public API surface
 
 ## Architecture Overview
 
 Apply principles from `python_clean_architecture.md` when designing and implementing features.
+
+### Layer Structure
+
+```
+CLI (adapter) ──→ behaviors (domain) ──→ no external deps
+     │
+     └──→ __init__conf__ (platform/config adapter)
+```
+
+### Key Principles
+
+- **Dependency Direction**: CLI depends on behaviors, never the reverse
+- **Import Contracts**: Enforced by import-linter in CI
+- **Domain Purity**: `behaviors.py` has no framework dependencies
+- **Single Responsibility**: Each module has one clear purpose
 
 ## Security & Configuration
 

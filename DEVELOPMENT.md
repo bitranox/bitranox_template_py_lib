@@ -105,9 +105,11 @@ COVERAGE=on make test        # force coverage and generate coverage.xml/codecov.
 ### Versioning & Metadata
 
 - Single source of truth for package metadata is `pyproject.toml` (`[project]`).
-- The library reads its own installed metadata at runtime via `importlib.metadata` (see `src/bitranox_template_py_lib/__init__conf__.py`).
+- The `__init__conf__.py` module contains static constants synced from `pyproject.toml`
+  by automation (`make test` regenerates them). Runtime code imports these constants
+  instead of querying `importlib.metadata`.
 - Do not duplicate the version in code; bump only `pyproject.toml` and update `CHANGELOG.md`.
-- Console script name is discovered from entry points; defaults to `bitranox_template_py_lib`.
+- Console script name is defined in `pyproject.toml` `[project.scripts]` section.
 
 ### Dependency Auditing
 
