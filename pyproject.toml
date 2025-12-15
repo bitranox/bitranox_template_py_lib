@@ -6,7 +6,7 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "rich-click>=1.9.4",
-    "tomli>=2.3.0; python_version<'3.11'",
+    "rtoml>=0.13.0",
 ]
 license = { text = "MIT" }
 authors = [{ name = "bitranox", email = "bitranox@gmail.com" }]
