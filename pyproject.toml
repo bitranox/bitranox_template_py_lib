@@ -1,6 +1,6 @@
 [project]
 name = "bitranox_template_py_lib"
-version = "1.0.1"
+version = "1.0.2"
 description = "Template for backward compatible python libs with registered cli commands"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -35,7 +35,7 @@ dev = [
   "pytest>=8.4.2,<9; python_version<'3.10'",
   "pytest>=9.0.2; python_version>='3.10'",
   "pytest-cov>=7.0.0",
-  "ruff>=0.14.8",
+  "ruff>=0.14.9",
   "pyright>=1.1.407",
   "bandit>=1.8.6,<1.9; python_version<'3.10'",
   "bandit>=1.9.2; python_version>='3.10'",
@@ -43,10 +43,11 @@ dev = [
   "twine>=6.2.0",
   "codecov-cli>=11.2.6",
   "pip-audit>=2.10.0",
-  "textual>=6.8.0",
+  "textual>=6.9.0",
   "import-linter>=2.5.2,<2.6; python_version<'3.10'",
-  "import-linter>=2.8; python_version>='3.10'",
-  "setuptools>=80.9.0"
+  "import-linter>=2.9; python_version>='3.10'",
+  "setuptools>=80.9.0",
+  "rtoml>=0.13.0",
 ]
 
 [project.scripts]
