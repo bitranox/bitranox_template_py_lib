@@ -179,3 +179,9 @@ result
 poetry.lock
 pdm.lock
 uv.lock
+
+# div
+.devcontainer/
+.claude/
+CLAUDE.md
+prompts.md

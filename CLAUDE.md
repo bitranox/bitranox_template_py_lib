@@ -149,19 +149,7 @@ CLI (adapter) ──→ behaviors (domain) ──→ no external deps
 
 ## Commit & Push Policy
 
-### Pre-Push Requirements
-- **Always run `make test` before pushing** to avoid lint/test breakage
+- **Always run `make test` before pushing**
 - Ensure all tests pass and code is properly formatted
-
-### Post-Push Monitoring
-- Monitor GitHub Actions for errors after pushing
-- Attempt to correct any CI/CD errors that appear
-
-## Claude Code Workflow
-
-When working on this project:
-1. Read relevant system prompts at session start
-2. Apply appropriate coding guidelines based on file type
-3. Run `make test` before commits
-4. Follow versioning guidelines for releases
-5. Monitor CI after pushing changes
+- Monitor GitHub Actions after pushing
+- **NEVER add Claude as co-author in commits** - no `Co-Authored-By` lines
