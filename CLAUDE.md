@@ -20,7 +20,7 @@ When working with Python code:
 - `python_solid_architecture_enforcer.md`
 - `python_clean_code.md`
 - `python_small_functions_style.md`
-- `python_libraries_to_use.md`
+- use skill `bx-python-libraries-to-use`
 - `python_structure_template.md`
 
 ### Additional Guidelines
@@ -111,7 +111,7 @@ Follow the guidelines in `python_clean_code.md` for all Python code:
 
 ## Architecture Overview
 
-Apply principles using skill `python_clean_architecture` when designing and implementing features.
+Apply principles using skill `bx-python-clean-architecture` when designing and implementing features.
 
 ### Layer Structure
 
