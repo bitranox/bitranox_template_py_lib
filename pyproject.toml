@@ -119,8 +119,9 @@ output = "coverage.json"
 pretty_print = true
 
 [tool.clean]
-# Patterns to remove when running `make clean` or `python -m scripts clean`
+# Patterns to remove when running `make clean`
 patterns = [
+  "**/__pycache__",
   ".hypothesis",
   ".import_linter_cache",
   ".pytest_cache",
@@ -147,10 +148,11 @@ default-remote = "origin"
 
 
 [tool.scripts.test]
-# Configuration for scripts/test.py test runner
+# Configuration for CICD test runner
 pytest-verbosity = "-vv"
 coverage-report-file = "coverage.xml"
 src-path = "src"
+
 [tool.importlinter]
 root_package = "bitranox_template_py_lib"
 
