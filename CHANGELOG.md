@@ -25,8 +25,6 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ### Fixed
 - CI `IndexError` in Python version parsing by switching to stdlib `tomllib`
-- Remove `rtoml` from runtime dependencies (test-only, requires Python 3.10+)
-- Replace `rtoml` with `tomllib`/`tomli` in tests for Python 3.9 compatibility
 - Inconsistent spacing in pip-audit ignore-vulns list
 - Undeclared `local_only` pytest marker
 

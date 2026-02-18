@@ -2,17 +2,12 @@
 
 from __future__ import annotations
 
-import sys
 from pathlib import Path
 from typing import Any
 import runpy
 
 import pytest
-
-if sys.version_info >= (3, 11):
-    import tomllib
-else:
-    import tomli as tomllib
+import rtoml
 from pydantic import BaseModel
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -114,8 +109,7 @@ def _load_pyproject() -> PyprojectToml:
     Returns:
         Validated PyprojectToml model instance.
     """
-    with PYPROJECT_PATH.open("rb") as fh:
-        raw = tomllib.load(fh)
+    raw = rtoml.load(PYPROJECT_PATH)
     return PyprojectToml.model_validate(raw)
 
 
@@ -169,8 +163,8 @@ def _load_init_conf_metadata(init_conf_path: Path) -> InitConfMetadata:
     if not fragments:
         raise AssertionError("No metadata assignments found in __init__conf__.py")
     metadata_text = "[metadata]\n" + "\n".join(fragments)
-    parsed = tomllib.loads(metadata_text)
-    # tomllib.loads returns a dict; we extract the "metadata" sub-dict and
+    parsed = rtoml.loads(metadata_text)
+    # rtoml.loads returns a dict; we extract the "metadata" sub-dict and
     # validate it into our typed model at the boundary.
     raw_metadata = parsed["metadata"]
     return InitConfMetadata.model_validate(raw_metadata)
