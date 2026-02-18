@@ -2,16 +2,17 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 from typing import Any
 import runpy
 
 import pytest
 
-try:
+if sys.version_info >= (3, 11):
     import tomllib
-except ModuleNotFoundError:
-    import tomli as tomllib  # type: ignore[no-redef]
+else:
+    import tomli as tomllib
 from pydantic import BaseModel
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent

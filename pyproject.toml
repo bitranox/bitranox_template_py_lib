@@ -42,7 +42,7 @@ dev = [
   "build>=1.4.0",
   "twine>=6.2.0",
   "codecov-cli>=11.2.6",
-  "pip-audit>=2.10.0",
+  "pip-audit>=2.10.0; python_version>='3.10'",
   "textual>=8.0.0",
   "import-linter>=2.5.2,<2.6; python_version<'3.10'",
   "import-linter>=2.10; python_version>='3.10'",

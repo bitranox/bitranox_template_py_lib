@@ -164,10 +164,16 @@ jobs:
         continue-on-error: true
         shell: python
         run: |
-          import subprocess, sys
-          import rtoml
-          from pathlib import Path
-          data = rtoml.load(Path("pyproject.toml"))
+          import shutil, subprocess, sys
+          if not shutil.which("pip-audit"):
+              print("pip-audit not available on this Python version, skipping")
+              sys.exit(0)
+          if sys.version_info >= (3, 11):
+              import tomllib
+          else:
+              import tomli as tomllib
+          with open("pyproject.toml", "rb") as f:
+              data = tomllib.load(f)
           vulns = data.get("tool", {}).get("pip-audit", {}).get("ignore-vulns", [])
           cmd = ["pip-audit", "--skip-editable"]
           for v in vulns:
