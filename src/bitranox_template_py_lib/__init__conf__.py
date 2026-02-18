@@ -24,7 +24,7 @@ name = "bitranox_template_py_lib"
 #: Human-readable summary shown in CLI help output.
 title = "Template for backward compatible python libs with registered cli commands"
 #: Current release version pulled from ``pyproject.toml`` by automation.
-version = "1.1.0"
+version = "1.1.1"
 #: Repository homepage presented to users.
 homepage = "https://github.com/bitranox/bitranox_template_py_lib"
 #: Author attribution surfaced in CLI output.
@@ -72,3 +72,6 @@ def print_info() -> None:
     lines = [f"Info for {name}:", ""]
     lines.extend(f"    {label.ljust(pad)} = {value}" for label, value in fields)
     print("\n".join(lines))
+
+
+__all__ = ["print_info"]

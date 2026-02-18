@@ -5,6 +5,15 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ## [Unreleased]
 
+## [1.1.1] - 2026-02-18
+
+### Added
+- `__all__` export declaration in `__init__conf__.py` for consistent public API surface
+
+### Fixed
+- Pin `rtoml` and `pip-audit` versions for Python 3.9 compatibility
+- Ignore `filelock` transitive dependency vulnerabilities in pip-audit
+
 ## [1.1.0] - 2026-02-18
 
 ### Added
