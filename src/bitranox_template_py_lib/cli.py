@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import sys
 from collections.abc import Sequence
+from dataclasses import dataclass
 
 import rich_click as click
 from click.core import ParameterSource
@@ -35,6 +36,7 @@ from .behaviors import emit_greeting, noop_main, raise_intentional_failure
 
 __all__ = [
     "CLICK_CONTEXT_SETTINGS",
+    "CliContext",
     "cli",
     "cli_fail",
     "cli_hello",
@@ -44,13 +46,28 @@ __all__ = [
 ]
 
 #: Shared Click context flags for consistent help output.
-CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}  # noqa: C408
+CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
 #: Console for rich output
 console = Console()
 
 #: Style for error messages when traceback is suppressed
-ERROR_STYLE = Style(color="red", bold=True)
+_ERROR_STYLE = Style(color="red", bold=True)
+
+
+@dataclass
+class CliContext:
+    """Typed context object for Click's ``ctx.obj``.
+
+    Replaces an untyped dict so that every downstream command accesses
+    strongly-typed attributes instead of string-keyed dictionary items.
+
+    Attributes:
+        traceback: Whether to show full Python traceback on errors.
+
+    """
+
+    traceback: bool = True
 
 
 def _exit_code_from(exc: SystemExit) -> int:
@@ -115,10 +132,9 @@ def cli(ctx: click.Context, traceback: bool) -> None:
         True
 
     """
-    # Store traceback preference in context object
-    # Context uses dict[str, bool] with key "traceback" for traceback flag
-    ctx.ensure_object(dict)
-    ctx.obj["traceback"] = traceback
+    # Store traceback preference in typed context object
+    ctx.ensure_object(CliContext)
+    ctx.obj.traceback = traceback
 
     # Show help if no subcommand and no explicit option
     if ctx.invoked_subcommand is None:
@@ -201,4 +217,4 @@ def _print_error(exc: Exception, *, show_traceback: bool) -> None:
         )
         console.print(tb)
     else:
-        console.print(f"Error: {type(exc).__name__}: {exc}", style=ERROR_STYLE)
+        console.print(f"Error: {type(exc).__name__}: {exc}", style=_ERROR_STYLE)

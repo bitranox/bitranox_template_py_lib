@@ -36,8 +36,4 @@ def cli_runner() -> CliRunner:
 @pytest.fixture
 def strip_ansi() -> Callable[[str], str]:
     """Return a helper that strips ANSI escape sequences from a string."""
-
-    def _strip(value: str) -> str:
-        return _remove_ansi_codes(value)
-
-    return _strip
+    return _remove_ansi_codes

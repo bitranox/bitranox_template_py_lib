@@ -44,7 +44,7 @@ def test_when_flush_is_possible_the_stream_is_polished() -> None:
 
     stream = MemoryStream([])
 
-    behaviors.emit_greeting(stream=stream)  # type: ignore[arg-type]
+    behaviors.emit_greeting(stream=stream)
 
     assert stream.ledger == ["Hello World\n"]
     assert stream.flushed is True

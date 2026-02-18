@@ -21,15 +21,25 @@ Note:
 
 from __future__ import annotations
 
-from typing import TextIO
+from typing import Protocol
 
 import sys
+
+
+class WritableStream(Protocol):
+    """Protocol for streams that accept text via ``write()``.
+
+    Only requires the ``write`` method. The ``flush`` method is optional
+    and checked at runtime via duck-typing in :func:`_flush_if_possible`.
+    """
+
+    def write(self, s: str, /) -> object: ...
 
 
 CANONICAL_GREETING = "Hello World"
 
 
-def _target_stream(preferred: TextIO | None) -> TextIO:
+def _target_stream(preferred: WritableStream | None) -> WritableStream:
     """Return the stream that should hear the greeting."""
 
     return preferred if preferred is not None else sys.stdout
@@ -41,7 +51,7 @@ def _greeting_line() -> str:
     return f"{CANONICAL_GREETING}\n"
 
 
-def _flush_if_possible(stream: TextIO) -> None:
+def _flush_if_possible(stream: WritableStream) -> None:
     """Flush the stream when the stream knows how to flush."""
 
     flush = getattr(stream, "flush", None)
@@ -49,7 +59,7 @@ def _flush_if_possible(stream: TextIO) -> None:
         flush()
 
 
-def emit_greeting(*, stream: TextIO | None = None) -> None:
+def emit_greeting(*, stream: WritableStream | None = None) -> None:
     """Write the canonical greeting to the provided text stream.
 
     Provide a deterministic success path that the documentation, smoke
@@ -118,6 +128,7 @@ def noop_main() -> None:
 
 __all__ = [
     "CANONICAL_GREETING",
+    "WritableStream",
     "emit_greeting",
     "raise_intentional_failure",
     "noop_main",

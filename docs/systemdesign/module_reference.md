@@ -7,7 +7,6 @@ Complete
 ## Links & References
 **Feature Requirements:** Scaffold requirements (ad-hoc)
 **Task/Ticket:** None documented
-**Pull Requests:** Pending current refactor
 **Related Files:**
 
 * src/bitranox_template_py_lib/behaviors.py
@@ -18,7 +17,7 @@ Complete
 * tests/test_cli.py
 * tests/test_module_entry.py
 * tests/test_behaviors.py
-* tests/test_scripts.py
+* tests/test_metadata.py
 
 ---
 
@@ -41,6 +40,10 @@ separation that would be overkill for this minimal template.
   exit code extraction and error formatting with clear single responsibilities.
 * Used modern type hints (``X | None`` syntax) and explicit ``__all__`` exports
   for clear public API surface.
+* Defined a ``WritableStream`` Protocol so ``emit_greeting()`` accepts any
+  object with a ``write()`` method, not just ``TextIO``.
+* Added a ``CliContext`` dataclass for typed Click context storage, replacing
+  an untyped dict.
 * Reduced ``__main__.py`` to a thin wrapper delegating to the CLI helper.
 * Re-exported the helpers through ``__init__.py`` so CLI and library imports
   draw from the same source.
@@ -65,17 +68,24 @@ stand-in domain.
 **System Dependencies:**
 * ``rich_click`` for CLI UX with beautiful output
 * ``rich`` for enhanced tracebacks and console output
-* ``importlib.metadata`` via ``__init__conf__`` to present package metadata
+* ``__init__conf__`` exposes static metadata constants kept in sync with ``pyproject.toml`` by automation
 
 ---
 
 ## Core Components
 
+### behaviors.WritableStream
+
+* **Purpose:** Protocol defining the minimal stream interface required by
+  ``emit_greeting()`` — only ``write()`` is required; ``flush()`` is optional
+  and checked at runtime via duck-typing.
+* **Location:** src/bitranox_template_py_lib/behaviors.py
+
 ### behaviors.emit_greeting
 
 * **Purpose:** Write the canonical greeting used in smoke tests and
   documentation.
-* **Input:** Optional text stream (defaults to ``sys.stdout``).
+* **Input:** Optional ``WritableStream`` (defaults to ``sys.stdout``).
 * **Output:** Writes ``"Hello World\n"`` to the stream and flushes if possible.
 * **Location:** src/bitranox_template_py_lib/behaviors.py
 
@@ -92,6 +102,13 @@ stand-in domain.
 * **Input:** None.
 * **Output:** Returns ``None``.
 * **Location:** src/bitranox_template_py_lib/behaviors.py
+
+### cli.CliContext
+
+* **Purpose:** Typed dataclass for Click's ``ctx.obj``, replacing an untyped
+  dict so downstream commands access strongly-typed attributes.
+* **Attributes:** ``traceback: bool`` (default ``True``).
+* **Location:** src/bitranox_template_py_lib/cli.py
 
 ### cli._exit_code_from
 
@@ -139,11 +156,11 @@ stand-in domain.
 
 ### Package Exports
 
-* ``__init__.py`` re-exports behaviour helpers and ``print_info`` for library
-  consumers via explicit ``__all__`` declaration. No legacy compatibility layer
-  remains; new code should import from the canonical module paths.
+* ``__init__.py`` re-exports behaviour helpers, ``WritableStream``, and
+  ``print_info`` for library consumers via explicit ``__all__`` declaration.
 * ``cli.py`` exports its public API via ``__all__``: ``CLICK_CONTEXT_SETTINGS``,
-  ``cli``, ``cli_fail``, ``cli_hello``, ``cli_info``, ``console``, ``main``.
+  ``CliContext``, ``cli``, ``cli_fail``, ``cli_hello``, ``cli_info``,
+  ``console``, ``main``.
 
 ---
 
@@ -186,16 +203,14 @@ stand-in domain.
 **Automated Tests:**
 
 * ``tests/test_cli.py`` exercises the help-first behaviour, failure path,
-  metadata output, and invalid command handling for the click surface.
+  metadata output, invalid command handling, SystemExit catch, and version
+  display for the click surface.
 * ``tests/test_module_entry.py`` ensures ``python -m`` entry mirrors the console
   script, including traceback behaviour.
 * ``tests/test_behaviors.py`` verifies greeting/failure helpers against custom
-  streams.
-* ``tests/test_scripts.py`` validates the automation entry points via the shared
-  scripts CLI.
-* ``tests/test_cli.py`` and ``tests/test_module_entry.py`` now introduce
-  structured recording helpers (``CapturedRun`` and ``PrintedTraceback``) so the
-  assertions read like documented scenarios.
+  streams using the ``WritableStream`` protocol.
+* ``tests/test_metadata.py`` validates that ``__init__conf__`` constants match
+  ``pyproject.toml`` using Pydantic models for typed TOML parsing.
 * Doctests embedded in behaviour and CLI helpers provide micro-regression tests
   for argument handling.
 
@@ -204,10 +219,12 @@ stand-in domain.
 * Running without subcommand shows CLI help (default behavior).
 * Running with ``--traceback`` flag explicitly (no subcommand) delegates to ``noop_main``.
 * Traceback preference is determined per-invocation from argv; no global state.
+* SystemExit raised outside Click's context manager is caught and exit code extracted.
 
 **Test Data:**
 
-* No fixtures required; tests rely on built-in `CliRunner` and monkeypatching.
+* No fixtures required; tests rely on built-in ``CliRunner``, monkeypatching,
+  and a shared ``conftest.py`` providing ``cli_runner`` and ``strip_ansi`` fixtures.
 
 ---
 
@@ -254,7 +271,7 @@ stand-in domain.
 ---
 
 **Created:** 2025-09-26 by Codex (automation)
-**Last Updated:** 2025-12-15 by Claude Code
+**Last Updated:** 2026-02-18 by Claude Code
 **Review Cycle:** Evaluate during next logging feature milestone
 
 ---

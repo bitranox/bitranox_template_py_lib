@@ -136,6 +136,20 @@ def test_version_option_displays_version(cli_runner: CliRunner) -> None:
 
 
 @pytest.mark.os_agnostic
+def test_main_catches_system_exit_and_returns_exit_code(monkeypatch: pytest.MonkeyPatch) -> None:
+    """main() should catch SystemExit and extract the exit code via _exit_code_from."""
+
+    def fake_cli(**_kwargs: object) -> None:
+        raise SystemExit(42)
+
+    monkeypatch.setattr(cli_mod, "cli", fake_cli)
+
+    exit_code = cli_mod.main(["hello"])
+
+    assert exit_code == 42
+
+
+@pytest.mark.os_agnostic
 def test_help_option_displays_help(cli_runner: CliRunner) -> None:
     """--help should display usage information."""
     result = cli_runner.invoke(cli_mod.cli, ["--help"])

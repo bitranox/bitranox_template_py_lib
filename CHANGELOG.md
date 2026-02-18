@@ -3,6 +3,35 @@
 All notable changes to this project will be documented in this file following
 the [Keep a Changelog](https://keepachangelog.com/) format.
 
+## [Unreleased]
+
+## [1.1.0] - 2026-02-18
+
+### Added
+- `WritableStream` Protocol for narrower stream typing in `behaviors.py`
+- `CliContext` dataclass replacing untyped dict for Click context storage
+- Dynamic CI matrix extracting Python versions from pyproject.toml classifiers
+- Pydantic models for typed TOML parsing in test suite
+- Test covering `SystemExit` branch in `cli.main()` for 100% cli.py coverage
+- `pydantic` added to dev dependencies
+
+### Changed
+- Replace `TextIO` with `WritableStream` Protocol for honest, minimal typing
+- Rename `ERROR_STYLE` to `_ERROR_STYLE` (private convention)
+- Replace `scripts/` Python build system with bmk-based Makefile targets
+- CI workflows renamed and modernized (`default_cicd_public.yml`, `default_release_public.yml`)
+- Use stdlib `tomllib` instead of `rtoml` in CI setup job
+- Update dev dependency pins (pydantic, ruff, pyright, bandit, etc.)
+
+### Fixed
+- CI `IndexError` in Python version parsing by switching to stdlib `tomllib`
+- Inconsistent spacing in pip-audit ignore-vulns list
+- Undeclared `local_only` pytest marker
+
+### Removed
+- `scripts/` directory (replaced by bmk Makefile targets)
+- `CLAUDE.md` project instructions file (moved to project-level config)
+
 ## [1.0.3] - 2025-12-15
 
 ### Changed

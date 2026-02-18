@@ -44,7 +44,7 @@ For alternative install paths (pip, pipx, uv, uvx source builds, etc.), see
 - Dev dependencies: pytest, ruff, pyright, bandit, build, twine, codecov-cli,
   pip-audit, textual, and import-linter pinned to their newest majors.
 - CI workflows exercise GitHub's rolling runner images (`ubuntu-latest`,
-  `macos-latest`, `windows-latest`) and cover CPython 3.9 through 3.13.
+  `macos-latest`, `windows-latest`) and cover CPython 3.9 through 3.14.
 
 
 ## Usage
