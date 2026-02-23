@@ -1,7 +1,7 @@
 # bitranox_template_py_lib
 
 <!-- Badges -->
-[![CI](https://github.com/bitranox/bitranox_template_py_lib/actions/workflows/ci.yml/badge.svg)](https://github.com/bitranox/bitranox_template_py_lib/actions/workflows/ci.yml)
+[![CI](https://github.com/bitranox/bitranox_template_py_lib/actions/workflows/default_cicd_public.yml/badge.svg)](https://github.com/bitranox/bitranox_template_py_lib/actions/workflows/default_cicd_public.yml)
 [![CodeQL](https://github.com/bitranox/bitranox_template_py_lib/actions/workflows/codeql.yml/badge.svg)](https://github.com/bitranox/bitranox_template_py_lib/actions/workflows/codeql.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Open in Codespaces](https://img.shields.io/badge/Codespaces-Open-blue?logo=github&logoColor=white&style=flat-square)](https://codespaces.new/bitranox/bitranox_template_py_lib?quickstart=1)
