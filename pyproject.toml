@@ -173,3 +173,8 @@ layers = [
 # GHSA-w853-jp5j-5j7f: filelock vulnerability (transitive dep, fix requires update)
 # GHSA-qmgc-5h2g-mvrw: filelock vulnerability (transitive dep, fix requires update)
 ignore-vulns = ["GHSA-4xh5-x5gv-qwph", "PYSEC-2022-42969", "CVE-2026-1703", "CVE-2026-25990", "CVE-2026-26007", "GHSA-w853-jp5j-5j7f", "GHSA-qmgc-5h2g-mvrw"]
+
+[tool.bashate]
+# bashate style settings for .sh files (E003 excluded: indent handled by shfmt)
+max-line-length = 120
+ignores = ["E003"]
