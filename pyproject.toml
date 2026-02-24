@@ -60,11 +60,11 @@ bitranox_template_py_lib = "bitranox_template_py_lib.cli:main"
 bitranox-template-py-cli = "bitranox_template_py_lib.cli:main"
 
 [build-system]
-# hatchling 1.28+ requires Python 3.10+, so we cap at 1.27.x for Python 3.9 compatibility
-requires = ["hatchling>=1.27.0,<1.28"]
+requires = [
+    "hatchling>=1.27.0,<1.28; python_version<'3.10'",
+    "hatchling>=1.29.0; python_version>='3.10'",
+]
 build-backend = "hatchling.build"
-
-
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/bitranox_template_py_lib"]
@@ -147,7 +147,6 @@ patterns = [
 [tool.git]
 # Default git remote for push/release commands
 default-remote = "origin"
-
 
 [tool.scripts.test]
 # Configuration for CICD test runner
