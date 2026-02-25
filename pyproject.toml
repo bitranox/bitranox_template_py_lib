@@ -70,6 +70,9 @@ build-backend = "hatchling.build"
 packages = ["src/bitranox_template_py_lib"]
 include = ["src/bitranox_template_py_lib/py.typed"]
 
+[tool.hatch.metadata]
+allow-direct-references = true
+
 [tool.ruff]
 line-length = 160
 target-version = "py39"
