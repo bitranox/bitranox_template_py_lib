@@ -13,6 +13,7 @@
 [![Known Vulnerabilities](https://snyk.io/test/github/bitranox/bitranox_template_py_lib/badge.svg)](https://snyk.io/test/github/bitranox/bitranox_template_py_lib)
 [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
+
 Template for backward compatible (3.9 upwards) python libs with registered cli commands
 - CLI entry point styled with rich-click (rich output + click ergonomics)
 
