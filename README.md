@@ -33,6 +33,32 @@ source .venv/bin/activate
 uv pip install bitranox_template_py_lib
 ```
 
+### Persistent install as CLI tool
+
+```bash
+# Install latest python
+install_latest_python_gcc.sh
+# pin uv to the latest python
+uv python pin /opt/python-latest/bin/python3
+# One-time install (persists from the git repo)
+uv tool install --python /opt/python-latest/bin/python3 --from "git+https://github.com/bitranox/bitranox_template_py_lib.git" bitranox-template-py-cli
+# or One-time install, persists from PyPi
+uv tool install --python /opt/python-latest/bin/python3 bitranox-template-py-cli
+# Update (requires network)
+uv tool upgrade bitranox-template-py-cli
+# Run
+bitranox-template-py-cli --help
+```
+
+### Persistent install as CLI tool
+```bash
+# install the CLI tool (isolated environment, added to PATH)
+uv tool install bitranox_template_py_lib
+
+# upgrade to latest
+uv tool upgrade bitranox_template_py_lib
+```
+
 For alternative install paths (pip, pipx, uv, uvx source builds, etc.), see
 [INSTALL.md](INSTALL.md). All supported methods register both the
 `bitranox_template_py_lib` and `bitranox-template-py-cli` commands on your PATH.
