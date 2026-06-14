@@ -33,6 +33,7 @@ from rich.traceback import Traceback, install as install_rich_traceback
 
 from . import __init__conf__
 from .behaviors import emit_greeting, noop_main, raise_intentional_failure
+from .typed_click import option, version_option
 
 __all__ = [
     "CLICK_CONTEXT_SETTINGS",
@@ -100,12 +101,12 @@ def _exit_code_from(exc: SystemExit) -> int:
     context_settings=CLICK_CONTEXT_SETTINGS,
     invoke_without_command=True,
 )
-@click.version_option(
+@version_option(
     version=__init__conf__.version,
     prog_name=__init__conf__.shell_command,
     message=f"{__init__conf__.shell_command} version {__init__conf__.version}",
 )
-@click.option(
+@option(
     "--traceback/--no-traceback",
     is_flag=True,
     default=True,
