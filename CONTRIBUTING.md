@@ -1,50 +1,55 @@
-# Contributing Guide
+# Contributing
 
-Thanks for helping improve **bitranox_template_py_lib**. The sections below summarise the day-to-day workflow, highlight the repository automation, and list the checks that must pass before a change is merged.
+Thanks for helping improve **bitranox_template_py_lib**. This page covers the day-to-day
+workflow and the checks a change must pass before it merges. For the tooling details, see
+[docs/development.md](docs/development.md).
 
-## 1. Workflow Overview
+## 1. Workflow
 
-1. Fork and branch – use short, imperative branch names (`feature/cli-extension`, `fix/codecov-token`).
-2. Make focused commits – keep unrelated refactors out of the same change.
-3. Run `make test` locally before pushing (see the automation note below).
-4. Update documentation and changelog entries that are affected by the change.
-5. Open a pull request referencing any relevant issues.
+1. Fork and branch with a short, imperative name (`feature/cli-extension`, `fix/exit-code`).
+2. Keep commits focused; leave unrelated refactors out of the change.
+3. Run `make test` locally before pushing.
+4. Update the docs and `CHANGELOG.md` for anything your change affects.
+5. Open a pull request and reference any relevant issues.
 
-## 2. Commits & Pushes
+## 2. Commits and pushes
 
-- Commit messages should be imperative (`Add rich handler`, `Fix CLI exit codes`).
-- The test harness (`make test`) runs the full lint/type/test pipeline but leaves the repository untouched; create commits yourself before pushing or uploading coverage artifacts.
-- `make push` always performs a commit before pushing. It prompts for a message when run interactively, honours `COMMIT_MESSAGE="…"` when provided, and creates an empty commit if nothing is staged. The Textual menu (`make menu → push`) exposes the same behaviour via an input field.
+- Write imperative commit subjects (`Add rich handler`, `Fix CLI exit codes`).
+- `make test` runs the full lint/type/test pipeline and leaves the working tree untouched.
+- `make push` runs the tests, commits, and pushes. Pass the message with `MSG="..."` (safe for
+  any punctuation or newline); `make push fix the thing` also works for a plain one-line
+  message. See [docs/development.md](docs/development.md#commit-messages).
 
-## 3. Coding Standards
+## 3. Coding standards
 
-- Apply the repository's Clean Architecture / SOLID rules (see `CLAUDE.md` and the system prompts listed there).
-- Prefer small, single-purpose modules and functions; avoid mixing orthogonal concerns.
-- Free functions and modules use `snake_case`; classes are `PascalCase`.
-- Keep runtime dependencies minimal. Use the standard library where practical.
-- Use modern type hints (`X | None` over `Optional[X]`), Google-style docstrings with doctests.
-- All imports at module top; use `__all__` for explicit public API exports.
+- Follow the Clean Architecture / SOLID rules in `CLAUDE.md` and the system prompts it lists.
+- Keep the layer direction intact: `cli` depends on `behaviors`, never the reverse. CI
+  enforces this with import-linter.
+- Prefer small, single-purpose modules and functions.
+- `snake_case` for functions and modules, `PascalCase` for classes.
+- Modern type hints (`X | None` over `Optional[X]`), Google-style docstrings with doctests.
+- All imports at module top; declare the public surface with `__all__`.
+- Keep runtime dependencies minimal; reach for the standard library where practical.
 
-## 4. Tests & Tooling
+## 4. Tests
 
-- `make test` runs Ruff (lint + format check), Pyright, and Pytest with coverage. Coverage is `on` by default; override with `COVERAGE=off` if you explicitly need a no-coverage run.
-- The harness auto-installs dev tools with `pip install -e .[dev]` when Ruff, Pyright, or Pytest are missing. Skip this by exporting `SKIP_BOOTSTRAP=1`.
-- Codecov uploads require a commit (provided by the automatic commit described above). For private repositories set `CODECOV_TOKEN` in your environment or `.env`.
-- Tests follow a narrative style: prefer names like `test_when_<condition>_<outcome>()`, keep each case laser-focused, and mark OS constraints with the provided markers (`@pytest.mark.os_agnostic`, `@pytest.mark.os_windows`, etc.).
-- Whenever you add a CLI behaviour or change metadata fallbacks, update the relevant story in `tests/test_cli.py` or `tests/test_metadata.py` so the specification remains complete.
+- `make test` runs Ruff (lint + format check), Pyright (strict), import-linter, Bandit,
+  pip-audit, and Pytest with coverage, including the module doctests. It runs against the
+  project `.venv`, which bmk syncs first.
+- Name tests for the behavior under test and keep each case focused.
+- Mark OS constraints with the provided markers (`@pytest.mark.os_agnostic`,
+  `@pytest.mark.os_windows`, and the rest declared in `pyproject.toml`).
+- When you add or change a CLI behavior or metadata, update the matching test in
+  `tests/test_cli.py`, `tests/test_metadata.py`, or `tests/test_module_entry.py`.
 
-## 5. Documentation Checklist
+## 5. Before opening a PR
 
-Before opening a PR, confirm the following:
+- [ ] `make test` passes locally.
+- [ ] Docs (`README.md`, `docs/*`) are updated for the change.
+- [ ] No build artifacts or virtual environments are committed.
+- [ ] Version bumps touch **only** `pyproject.toml` and `CHANGELOG.md`.
 
-- [ ] `make test` passes locally (and you removed the auto-created Codecov commit if you do not want to keep it).
-- [ ] Relevant documentation (`README.md`, `DEVELOPMENT.md`, `docs/systemdesign/*`) is updated.
-- [ ] No generated artefacts or virtual environments are committed.
-- [ ] Version bumps, when required, touch **only** `pyproject.toml` and `CHANGELOG.md`.
+## 6. Security and configuration
 
-## 6. Security & Configuration
-
-- Never commit secrets. Tokens (Codecov, PyPI) belong in `.env` (ignored by git) or CI secrets.
-- Sanitise any payloads you emit via logging once richer logging features ship.
-
-Happy hacking!
+- Never commit secrets. Tokens (Codecov, PyPI) belong in `.env` (git-ignored) or CI secrets.
+- Sanitize any payload before you log or render it.

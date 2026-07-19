@@ -12,104 +12,75 @@
 [![Maintainability](https://qlty.sh/badges/041ba2c1-37d6-40bb-85a0-ec5a8a0aca0c/maintainability.svg)](https://qlty.sh/gh/bitranox/projects/bitranox_template_py_lib)
 [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
+A scaffold for backward-compatible (Python 3.9+) libraries that ship a registered CLI command,
+with a rich-click entry point, strict typing, and a full test-and-release pipeline already wired.
 
-Template for backward compatible (3.9 upwards) python libs with registered cli commands
-- CLI entry point styled with rich-click (rich output + click ergonomics)
+## Why a template
 
-## Install - recommended via UV
-UV - the ultrafast installer - written in Rust (10–20× faster than pip/poetry)
+Starting a new Python library feels like it should be about the library. It almost never is.
+The first day goes on the scaffolding nobody brags about: which linter, which type checker, how
+the version number stays in step across three files, how a tag becomes a PyPI release, which
+Python versions you have quietly promised to keep working. None of that is the thing you set out
+to build, and all of it has to be right before the thing you set out to build can ship.
+
+The tax on that work is invisible, which is exactly why people underprice it. A blank directory
+looks free. It is not. It is a stack of small decisions you will make in a hurry, slightly
+wrong, and then copy by hand into the next project, where you will make them slightly wrong
+again. A blank page is not a fresh start so much as a bill you have agreed to pay later.
+
+A template is the boring answer that settles the bill up front. You inherit a working set of
+defaults, tests green across six Python versions and three operating systems, strict typing, a
+lint/type/test/release pipeline behind a single `make` command, a CLI that already runs, so the
+only decisions left are the ones that are actually about your library. The point is not that
+these are the only good choices. The point is that they are already made and already wired
+together, so you get to disagree with one on purpose rather than rediscover all of them by
+accident.
+
+So clone it, delete the parts you do not want, and spend day one on the problem you actually
+care about. That is the whole trick: make the sensible path the lazy one.
+
+## Quickstart
+
+Install from PyPI (uv recommended, plain `pip` works too):
 
 ```bash
-# recommended Install via uv 
-pip install --upgrade uv
-# Create and activate a virtual environment (optional but recommended)
-uv venv
-# macOS/Linux
-source .venv/bin/activate
-# Windows (PowerShell)
-.venv\Scripts\Activate.ps1
-# install via uv from PyPI
 uv pip install bitranox_template_py_lib
 ```
 
-### Persistent install as CLI tool
+Run the CLI:
 
 ```bash
-# Install latest python
-install_latest_python_gcc.sh
-# pin uv to the latest python
-uv python pin /opt/python-latest/bin/python3
-# One-time install (persists from the git repo)
-uv tool install --python /opt/python-latest/bin/python3 --from "git+https://github.com/bitranox/bitranox_template_py_lib.git" bitranox-template-py-cli
-# or One-time install, persists from PyPi
-uv tool install --python /opt/python-latest/bin/python3 bitranox-template-py-cli
-# Update (requires network)
-uv tool upgrade bitranox-template-py-cli
-# Run
-bitranox-template-py-cli --help
+bitranox_template_py_lib hello     # -> Hello World
+bitranox_template_py_lib info      # print resolved package metadata
+bitranox_template_py_lib --help
 ```
 
-### Persistent install as CLI tool
-```bash
-# install the CLI tool (isolated environment, added to PATH)
-uv tool install bitranox_template_py_lib
-
-# upgrade to latest
-uv tool upgrade bitranox_template_py_lib
-```
-
-For alternative install paths (pip, pipx, uv, uvx source builds, etc.), see
-[INSTALL.md](INSTALL.md). All supported methods register both the
-`bitranox_template_py_lib` and `bitranox-template-py-cli` commands on your PATH.
-
-### Python 3.9+ Baseline
-
-- The project targets **Python 3.9 and newer**.
-- Runtime dependencies: `rich-click>=1.9.4` for beautiful CLI output,
-  `rtoml>=0.13.0` for fast TOML parsing across all Python versions.
-- Dev dependencies: pytest, ruff, pyright, bandit, build, twine, codecov-cli,
-  pip-audit, textual, and import-linter pinned to their newest majors.
-- CI workflows exercise GitHub's rolling runner images (`ubuntu-latest`,
-  `macos-latest`, `windows-latest`) and cover CPython 3.9 through 3.14.
-
-
-## Usage
-
-The CLI leverages [rich-click](https://github.com/ewels/rich-click) so help output, validation errors, and prompts render with Rich styling while keeping the familiar click ergonomics.
-The scaffold keeps a CLI entry point so you can validate packaging flows, but it
-currently exposes a single informational command while logging features are
-developed:
+Or run it without installing:
 
 ```bash
-bitranox_template_py_lib info
-bitranox_template_py_lib hello
-bitranox_template_py_lib fail
-bitranox_template_py_lib --traceback fail
-bitranox-template-py-cli info
-python -m bitranox_template_py_lib info
-uvx bitranox_template_py_lib info
+uvx bitranox_template_py_lib hello
+python -m bitranox_template_py_lib hello
 ```
 
-For library use you can import the documented helpers directly:
+Use it as a library:
 
 ```python
-import bitranox_template_py_lib as btpc
+import bitranox_template_py_lib as lib
 
-btpc.emit_greeting()
-try:
-    btpc.raise_intentional_failure()
-except RuntimeError as exc:
-    print(f"caught expected failure: {exc}")
-
-btpc.print_info()
+lib.emit_greeting()      # writes "Hello World" to stdout
+lib.print_info()         # print the package metadata block
 ```
 
+See [docs/usage.md](docs/usage.md) for the full command and API reference.
 
-## Further Documentation
+## Documentation
 
-- [Install Guide](INSTALL.md)
-- [Development Handbook](DEVELOPMENT.md)
-- [Contributor Guide](CONTRIBUTING.md)
-- [Changelog](CHANGELOG.md)
+- [Installation](docs/installation.md)
+- [Usage](docs/usage.md)
+- [Development](docs/development.md)
 - [Module Reference](docs/systemdesign/module_reference.md)
+- [Contributing](CONTRIBUTING.md)
+- [Changelog](CHANGELOG.md)
+- [Our stance on AI](ai-stance.md)
+- [AI transparency](ai-transparency.md)
 - [License](LICENSE)
