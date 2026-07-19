@@ -41,7 +41,39 @@ care about. That is the whole trick: make the sensible path the lazy one.
 
 ## Quickstart
 
-Install from PyPI (uv recommended, plain `pip` works too):
+### 1. Start a new library from this template
+
+The first thing you do is copy the template into a new directory named for your package, rename
+it to that package, and reset the git history to one fresh commit. The **directory name drives
+the rename**, so name it for your library first.
+
+```bash
+# copy the template into a new dir named for your package
+git clone --depth 1 https://github.com/bitranox/bitranox_template_py_lib.git lib_wombat
+cd lib_wombat
+git remote remove origin      # detach from the template so nothing ever pushes back to it
+git branch -m master main     # new repos use main, not master
+
+# rename the project to your package (rename-project, run via uvx)
+./rename_dry.sh               # preview: rename-project --dry-run. Confirm every detected
+                              #   name and path reads "lib_wombat" before applying.
+./rename.sh                   # apply: rename-project --yes. Takes NO argument - the new name
+                              #   comes from the directory, so `./rename.sh lib_wombat` is wrong.
+
+# squash the template history into a single fresh commit
+./reset_git_history.sh        # with the remote removed above, this rewrites local history only
+```
+
+Now create your own empty GitHub repo, add it as `origin`, and push `main`. Removing the template
+remote first matters: `reset_git_history.sh` force-pushes to the first remote it finds, and right
+after a clone that would be the template itself.
+
+See [docs/development.md](docs/development.md) for the full develop-test-release flow (bmk).
+
+### 2. Try the CLI and API
+
+To see what you get, install the template's own package from PyPI (uv recommended, plain `pip`
+works too):
 
 ```bash
 uv pip install bitranox_template_py_lib
