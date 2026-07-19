@@ -1,283 +1,390 @@
-# Feature Documentation: CLI Behavior Scaffold
+# Module Reference: bitranox_template_py_lib
 
 ## Status
 
-Complete
+Template / Scaffold (v1.1.2)
 
 ## Links & References
-**Feature Requirements:** Scaffold requirements (ad-hoc)
-**Task/Ticket:** None documented
+
+**Repository:** https://github.com/bitranox/bitranox_template_py_lib
+**PyPI:** https://pypi.org/project/bitranox-template-py-lib/
+**Documentation:** README.md, INSTALL.md, DEVELOPMENT.md, CONTRIBUTING.md, CHANGELOG.md
 **Related Files:**
 
-* src/bitranox_template_py_lib/behaviors.py
-* src/bitranox_template_py_lib/cli.py
-* src/bitranox_template_py_lib/__main__.py
-* src/bitranox_template_py_lib/__init__.py
-* src/bitranox_template_py_lib/__init__conf__.py
-* tests/test_cli.py
-* tests/test_module_entry.py
-* tests/test_behaviors.py
-* tests/test_metadata.py
+* src/bitranox_template_py_lib/__init__.py (public API surface)
+* src/bitranox_template_py_lib/behaviors.py (domain behaviors)
+* src/bitranox_template_py_lib/cli.py (rich-click CLI adapter)
+* src/bitranox_template_py_lib/typed_click.py (strict-typed click decorator wrappers)
+* src/bitranox_template_py_lib/__init__conf__.py (static metadata / platform adapter)
+* src/bitranox_template_py_lib/__main__.py (python -m entry point)
+* src/bitranox_template_py_lib/py.typed (PEP 561 marker)
+* tests/test_behaviors.py, tests/test_cli.py, tests/test_metadata.py, tests/test_module_entry.py
 
 ---
 
 ## Problem Statement
 
-The original scaffold concentrated the greeting, failure trigger, and CLI
-orchestration inside a single module, making it harder to explain module intent
-and to guarantee that the console script and ``python -m`` execution paths stay
-behaviourally identical. We needed clearer module boundaries and shared helpers
-for traceback preferences without introducing the full domain/application
-separation that would be overkill for this minimal template.
+Starting a new backward-compatible Python library that ships a registered CLI command
+means re-solving the same structural problems every time:
+
+1. A clean separation between the command-line transport and the domain logic it calls.
+2. A single, auditable source of package metadata that stays in sync with `pyproject.toml`.
+3. A strict-typed (pyright) codebase without disabling rules for third-party gaps.
+4. Consistent entry points for both console scripts and `python -m` execution.
+5. Enforced import contracts so the transport never leaks into the domain layer.
+
+This package is the scaffold that answers those once, so a new library starts from a
+working, tested, lint-clean baseline rather than an empty `src/`.
+
+---
 
 ## Solution Overview
 
-* Extracted the behaviour helpers into ``behaviors.py`` so both CLI and library
-  consumers have a single cohesive module documenting the temporary domain.
-* Simplified ``cli.py`` to import the behaviour helpers, with all imports at
-  module top for better readability and static analysis.
-* Added helper functions ``_exit_code_from()`` and ``_print_error()`` to handle
-  exit code extraction and error formatting with clear single responsibilities.
-* Used modern type hints (``X | None`` syntax) and explicit ``__all__`` exports
-  for clear public API surface.
-* Defined a ``WritableStream`` Protocol so ``emit_greeting()`` accepts any
-  object with a ``write()`` method, not just ``TextIO``.
-* Added a ``CliContext`` dataclass for typed Click context storage, replacing
-  an untyped dict.
-* Reduced ``__main__.py`` to a thin wrapper delegating to the CLI helper.
-* Re-exported the helpers through ``__init__.py`` so CLI and library imports
-  draw from the same source.
-* Documented the responsibilities in this module reference so future refactors
-  have an authoritative baseline.
+`bitranox_template_py_lib` provides:
+
+1. **Layered Skeleton** - CLI adapter, domain behaviors, and a metadata/platform adapter
+   with enforced dependency direction.
+2. **Placeholder Domain** - `emit_greeting`, `raise_intentional_failure`, and `noop_main`
+   exercise the success, failure, and no-op paths end to end.
+3. **rich-click CLI** - `info`, `hello`, and `fail` commands plus a global
+   `--traceback/--no-traceback` toggle.
+4. **Strict Typing** - pyright strict mode, with the single untyped third-party boundary
+   isolated in `typed_click.py`.
+5. **Generated Metadata** - constants in `__init__conf__.py` kept in sync with
+   `pyproject.toml` by development automation, so runtime code never queries
+   `importlib.metadata`.
 
 ---
 
 ## Architecture Integration
 
-**App Layer Fit:** This package remains a CLI-first utility; all modules live in
-the transport/adapter layer, with ``behaviors.py`` representing the small
-stand-in domain.
+**Layer Structure:**
+```
+CLI Layer (cli.py, typed_click.py, __main__.py)
+    | imports
+Domain Layer (behaviors.py)              <- no framework dependencies
+    ^
+    | imports (metadata only)
+Platform Adapter (__init__conf__.py)     <- static package metadata
+```
 
 **Data Flow:**
-1. CLI parses options with rich-click.
-2. Rich traceback is installed by default (``--no-traceback`` disables it).
-3. Commands delegate to behaviour helpers.
-4. Exceptions are caught and formatted via ``_print_error()``.
-5. Exit codes are extracted via ``_exit_code_from()`` for proper shell integration.
+1. A console script or `python -m` invocation calls `cli.main()`.
+2. `main()` installs the rich traceback handler (unless suppressed) and dispatches
+   the click command group.
+3. Each command delegates to a behavior helper (`emit_greeting`, `raise_intentional_failure`)
+   or to `__init__conf__.print_info()`.
+4. Exit codes are normalized: 0 on success, the `SystemExit` code when raised, 1 on a
+   caught exception.
 
-**System Dependencies:**
-* ``rich_click`` for CLI UX with beautiful output
-* ``rich`` for enhanced tracebacks and console output
-* ``__init__conf__`` exposes static metadata constants kept in sync with ``pyproject.toml`` by automation
+**Dependency Direction:** CLI depends on behaviors, never the reverse. This is enforced in
+CI by import-linter (`tool.importlinter` contract "CLI depends on behaviors only").
+
+**Dependencies:**
+* **Runtime:** `rich-click>=1.9.8`, `rtoml` (version-split for the Python 3.9 baseline).
+* **Development:** pytest, ruff, pyright, bandit, build, twine, import-linter, pip-audit,
+   pydantic, textual (install with the `[dev]` extra).
 
 ---
 
 ## Core Components
 
-### behaviors.WritableStream
+### `__init__` Module (Public API)
 
-* **Purpose:** Protocol defining the minimal stream interface required by
-  ``emit_greeting()`` — only ``write()`` is required; ``flush()`` is optional
-  and checked at runtime via duck-typing.
-* **Location:** src/bitranox_template_py_lib/behaviors.py
+Re-exports the stable public surface so importers depend on the package, not its internal
+module layout.
 
-### behaviors.emit_greeting
+**Exports:** `CANONICAL_GREETING`, `WritableStream`, `emit_greeting`, `noop_main`,
+`print_info`, `raise_intentional_failure`.
 
-* **Purpose:** Write the canonical greeting used in smoke tests and
-  documentation.
-* **Input:** Optional ``WritableStream`` (defaults to ``sys.stdout``).
-* **Output:** Writes ``"Hello World\n"`` to the stream and flushes if possible.
-* **Location:** src/bitranox_template_py_lib/behaviors.py
+**Location:** src/bitranox_template_py_lib/__init__.py
 
-### behaviors.raise_intentional_failure
+---
 
-* **Purpose:** Provide a deterministic failure hook for error-handling tests.
-* **Input:** None.
-* **Output:** Raises ``RuntimeError('I should fail')``.
-* **Location:** src/bitranox_template_py_lib/behaviors.py
+### `behaviors` Module (Domain Layer)
 
-### behaviors.noop_main
+Framework-free helpers that other modules import instead of duplicating literals.
 
-* **Purpose:** Placeholder entry for transports expecting a ``main`` callable.
-* **Input:** None.
-* **Output:** Returns ``None``.
-* **Location:** src/bitranox_template_py_lib/behaviors.py
+#### `WritableStream` (Protocol)
 
-### cli.CliContext
+**Purpose:** Structural type for any object exposing `write(str) -> object`. `flush` is
+optional and duck-typed at runtime.
 
-* **Purpose:** Typed dataclass for Click's ``ctx.obj``, replacing an untyped
-  dict so downstream commands access strongly-typed attributes.
-* **Attributes:** ``traceback: bool`` (default ``True``).
-* **Location:** src/bitranox_template_py_lib/cli.py
+**Location:** src/bitranox_template_py_lib/behaviors.py:29
 
-### cli._exit_code_from
+---
 
-* **Purpose:** Extract integer exit code from SystemExit exceptions.
-* **Input:** SystemExit exception instance.
-* **Output:** Integer exit code (the code itself if int, 1 if truthy, 0 if falsy).
-* **Location:** src/bitranox_template_py_lib/cli.py
+#### `CANONICAL_GREETING`
 
-### cli._print_error
+**Purpose:** Single source of the greeting text (`"Hello World"`) shared by the CLI and tests.
 
-* **Purpose:** Print error to console with or without full traceback.
-* **Input:** Exception instance and boolean show_traceback flag.
-* **Output:** Prints rich traceback (with locals) or simple error message to console.
-* **Location:** src/bitranox_template_py_lib/cli.py
+**Location:** src/bitranox_template_py_lib/behaviors.py:39
 
-### cli.main
+---
 
-* **Purpose:** Entry point for console scripts and module execution, handling
-  exit codes and exception propagation.
-* **Input:** Optional argv sequence (defaults to sys.argv[1:]).
-* **Output:** Integer exit code (0 for success, non-zero for errors).
-* **Location:** src/bitranox_template_py_lib/cli.py
+#### `emit_greeting(*, stream: WritableStream | None = None) -> None`
 
-### cli.cli_info / cli.cli_hello / cli.cli_fail
+**Purpose:** Write the canonical greeting plus a newline to the target stream, flushing when
+the stream supports it.
 
-* **Purpose:** Subcommands for displaying metadata, greeting, and triggering
-  intentional failures for testing error handling.
-* **Input:** None (commands receive Click context automatically).
-* **Output:** None (execute their respective behaviors).
-* **Location:** src/bitranox_template_py_lib/cli.py
+**Input:** `stream` (optional) - text stream to receive the greeting; defaults to
+`sys.stdout`.
 
-### __main__
+**Output:** None (writes to the stream).
 
-* **Purpose:** Provide ``python -m bitranox_template_py_lib`` entry point by
-  delegating directly to ``cli.main()``.
-* **Input:** None (reads from sys.argv).
-* **Output:** System exit with code from ``cli.main()``.
+**Location:** src/bitranox_template_py_lib/behaviors.py:62
 
-### __init__conf__.print_info
+**Example:**
+```python
+from io import StringIO
+from bitranox_template_py_lib import emit_greeting
 
-* **Purpose:** Render the statically-defined project metadata for the CLI ``info`` command.
-* **Input:** None.
-* **Output:** Writes the hard-coded metadata block to ``stdout``.
-* **Location:** src/bitranox_template_py_lib/__init__conf__.py
+buffer = StringIO()
+emit_greeting(stream=buffer)
+assert buffer.getvalue() == "Hello World\n"
+```
 
-### Package Exports
+---
 
-* ``__init__.py`` re-exports behaviour helpers, ``WritableStream``, and
-  ``print_info`` for library consumers via explicit ``__all__`` declaration.
-* ``cli.py`` exports its public API via ``__all__``: ``CLICK_CONTEXT_SETTINGS``,
-  ``CliContext``, ``cli``, ``cli_fail``, ``cli_hello``, ``cli_info``,
-  ``console``, ``main``.
+#### `raise_intentional_failure() -> None`
+
+**Purpose:** Always raise `RuntimeError("I should fail")` so transports and tests can exercise
+failure and traceback handling.
+
+**Raises:** `RuntimeError` unconditionally.
+
+**Location:** src/bitranox_template_py_lib/behaviors.py:92
+
+---
+
+#### `noop_main() -> None`
+
+**Purpose:** Explicit placeholder callable for tools that expect a module-level `main` while
+the domain is still stubbed. Performs no work.
+
+**Location:** src/bitranox_template_py_lib/behaviors.py:113
+
+---
+
+### `cli` Module (Transport Adapter)
+
+Wires the behavior helpers into a rich-click interface.
+
+#### `CliContext` (dataclass)
+
+**Purpose:** Typed replacement for Click's untyped `ctx.obj` dict.
+
+**Attributes:** `traceback: bool = True` - whether to show a full traceback on error.
+
+**Location:** src/bitranox_template_py_lib/cli.py:59
+
+---
+
+#### Command group: `cli`
+
+**Purpose:** Root group carrying the global `--traceback/--no-traceback` flag and the
+`--version` option. With no subcommand and a default flag value it prints help.
+
+**Location:** src/bitranox_template_py_lib/cli.py:99
+
+---
+
+#### Command: `info`
+
+**Purpose:** Print resolved package metadata via `__init__conf__.print_info()`.
+
+**Location:** src/bitranox_template_py_lib/cli.py:151
+
+---
+
+#### Command: `hello`
+
+**Purpose:** Demonstrate the success path by emitting the canonical greeting.
+
+**Location:** src/bitranox_template_py_lib/cli.py:157
+
+---
+
+#### Command: `fail`
+
+**Purpose:** Demonstrate error handling by calling `raise_intentional_failure()`.
+
+**Location:** src/bitranox_template_py_lib/cli.py:163
+
+---
+
+#### `main(argv: Sequence[str] | None = None) -> int`
+
+**Purpose:** Entry point for console scripts and `python -m`. Installs the rich traceback
+handler unless `--no-traceback` is present, dispatches the command group, and returns a
+normalized exit code.
+
+**Input:** `argv` (optional) - argument sequence; `None` uses `sys.argv[1:]`.
+
+**Output:** Exit code (0 success, `SystemExit` code when raised, 1 on caught exception).
+
+**Location:** src/bitranox_template_py_lib/cli.py:169
+
+---
+
+### `typed_click` Module (Type Boundary)
+
+**Purpose:** Wrap click's `option` and `version_option` behind fully-known signatures so the
+rest of the CLI stays strict-clean under pyright. The only `# pyright: ignore` for this
+third-party gap lives here.
+
+**Exports:** `option`, `version_option`.
+
+**Location:** src/bitranox_template_py_lib/typed_click.py
+
+---
+
+### `__init__conf__` Module (Platform Adapter)
+
+**Purpose:** Expose static package metadata (name, title, version, homepage, author,
+`shell_command`, and the `LAYEREDCONF_*` identifiers for lib_layered_config paths) as
+module-level constants, kept in sync with `pyproject.toml` by automation.
+
+**Key function:** `print_info() -> None` renders the metadata block for the CLI `info`
+command.
+
+**Location:** src/bitranox_template_py_lib/__init__conf__.py
+
+---
+
+### `__main__` Module (Module Entry Point)
+
+**Purpose:** Bridge `python -m bitranox_template_py_lib` to `cli.main()`, exiting with its
+return code.
+
+**Location:** src/bitranox_template_py_lib/__main__.py
 
 ---
 
 ## Implementation Details
 
-**Dependencies:**
+**Exit-code normalization (`_exit_code_from`):**
+1. Return the `SystemExit.code` when it is an int.
+2. Otherwise return 1 when the code is truthy, 0 when falsy.
 
-* External: ``rich_click``, ``rich`` (for Console and traceback)
-* Internal: ``behaviors`` module, ``__init__conf__`` static metadata constants
+**Traceback handling:**
+- `main()` inspects `argv` for `--no-traceback`; when absent it installs the rich traceback
+  handler with locals.
+- On a caught exception `_print_error` renders either a full rich `Traceback` (with locals)
+  or a single red one-line message, depending on the toggle.
 
-**Key Configuration:**
-
-* No environment variables required.
-* Traceback preferences controlled via CLI ``--traceback`` flag.
-
-**Database Changes:**
-
-* None.
-
-**Error Handling Strategy:**
-
-* Rich tracebacks are installed by default; ``--no-traceback`` suppresses them.
-* Click runs with ``standalone_mode=False`` so exceptions are caught by ``main()``.
-* ``_exit_code_from()`` extracts proper exit codes from SystemExit exceptions.
-* ``_print_error()`` formats exceptions as rich tracebacks or simple error messages.
-* Exit codes are returned via ``raise SystemExit(main())`` for proper shell integration.
+**Metadata sync:**
+- Constants in `__init__conf__.py` mirror `pyproject.toml`. After changing project metadata,
+  `make test` regenerates the module before commit, so runtime code never calls
+  `importlib.metadata`.
 
 ---
 
 ## Testing Approach
 
-**Manual Testing Steps:**
+**Test modules:**
+- `tests/test_behaviors.py` - domain helpers (`emit_greeting`, `raise_intentional_failure`,
+  `noop_main`) and the `WritableStream` contract.
+- `tests/test_cli.py` - command dispatch, exit codes, and the traceback toggle.
+- `tests/test_metadata.py` - metadata constants and `print_info` rendering.
+- `tests/test_module_entry.py` - the `python -m` entry point.
+- `tests/conftest.py` - shared fixtures.
 
-1. ``bitranox_template_py_lib`` → prints CLI help (no default action).
-2. ``bitranox_template_py_lib hello`` → prints greeting.
-3. ``bitranox_template_py_lib fail`` → prints full rich traceback (default).
-4. ``bitranox_template_py_lib --no-traceback fail`` → prints simple error message.
-5. ``python -m bitranox_template_py_lib fail`` → matches console script behavior.
+**Doctests:** enabled via `--doctest-modules` (see `tool.pytest.ini_options`), so the
+docstring examples in `behaviors.py`, `cli.py`, and `__init__conf__.py` run as tests.
 
-**Automated Tests:**
+**OS markers:** `os_agnostic`, `os_windows`, `os_macos`, `os_posix`, `os_linux`, and
+`local_only` scope tests to platforms and to local-only runs (skipped in CI).
 
-* ``tests/test_cli.py`` exercises the help-first behaviour, failure path,
-  metadata output, invalid command handling, SystemExit catch, and version
-  display for the click surface.
-* ``tests/test_module_entry.py`` ensures ``python -m`` entry mirrors the console
-  script, including traceback behaviour.
-* ``tests/test_behaviors.py`` verifies greeting/failure helpers against custom
-  streams using the ``WritableStream`` protocol.
-* ``tests/test_metadata.py`` validates that ``__init__conf__`` constants match
-  ``pyproject.toml`` using Pydantic models for typed TOML parsing.
-* Doctests embedded in behaviour and CLI helpers provide micro-regression tests
-  for argument handling.
-
-**Edge Cases:**
-
-* Running without subcommand shows CLI help (default behavior).
-* Running with ``--traceback`` flag explicitly (no subcommand) delegates to ``noop_main``.
-* Traceback preference is determined per-invocation from argv; no global state.
-* SystemExit raised outside Click's context manager is caught and exit code extracted.
-
-**Test Data:**
-
-* No fixtures required; tests rely on built-in ``CliRunner``, monkeypatching,
-  and a shared ``conftest.py`` providing ``cli_runner`` and ``strip_ansi`` fixtures.
+**Coverage gate:** `fail_under = 85` over `src/bitranox_template_py_lib`.
 
 ---
 
-## Known Issues & Future Improvements
+## Known Limitations & Future Enhancements
 
-**Current Limitations:**
+**By design (do not "fix"):**
+- Python 3.9 baseline is intentional for backward compatibility with older applications.
+- `from __future__ import annotations` is kept across modules for consistency and forward
+  compatibility.
+- The domain layer is a placeholder: `emit_greeting`, `raise_intentional_failure`, and
+  `noop_main` exist to prove the wiring, not to provide features.
 
-* Behaviour module still contains placeholder logic; real logging helpers will
-  replace it in future iterations.
-
-**Future Enhancements:**
-
-* Introduce structured logging once the logging stack lands.
-* Expand the module reference when new commands or behaviours are added.
+**When adapting this template:**
+- Replace the placeholder behaviors with the library's real domain logic.
+- Extend the import-linter contract as new layers are added.
+- Keep the metadata constants and `pyproject.toml` in sync via the automation.
 
 ---
 
-## Risks & Considerations
+## Security Considerations
 
-**Technical Risks:**
-
-* Traceback formatting depends on Rich's traceback module; updates may change
-  the appearance of error output.
-
-**User Impact:**
-
-* None expected; CLI surface and public imports remain backward compatible.
+- **No untrusted input:** the CLI commands take no external data; `emit_greeting` writes only
+  the constant greeting.
+- **Type boundary isolated:** the single untyped third-party surface is quarantined in
+  `typed_click.py`; the rest is strict-typed.
+- **Dependency hygiene:** `pip-audit` runs in CI; known-unfixable advisories are pinned in
+  `tool.pip-audit.ignore-vulns` with rationale, and `codecov-cli` is commented out (not
+  deleted) to avoid dragging click below the CVE-2026-7246 fix.
 
 ---
 
 ## Documentation & Resources
 
 **Internal References:**
-
-* README.md – usage examples
-* INSTALL.md – installation options
-* DEVELOPMENT.md – developer workflow
+* README.md - overview and usage
+* INSTALL.md - installation, including the `[dev]` extra
+* DEVELOPMENT.md - developer workflow and make targets
+* CONTRIBUTING.md - contribution guidelines
+* CHANGELOG.md - version history
 
 **External References:**
-
 * rich-click documentation: https://github.com/ewels/rich-click
-* rich documentation: https://rich.readthedocs.io/
+* Click documentation: https://click.palletsprojects.com/
+* import-linter documentation: https://import-linter.readthedocs.io/
+* PEP 561 (py.typed): https://peps.python.org/pep-0561/
 
 ---
 
-**Created:** 2025-09-26 by Codex (automation)
-**Last Updated:** 2026-02-18 by Claude Code
-**Review Cycle:** Evaluate during next logging feature milestone
+## Version History
+
+**v1.1.2 (2026-06-14):**
+- Added `typed_click.py` facade wrapping rich-click's `option` / `version_option` decorators
+  behind explicit signatures, keeping the CLI strict-clean under pyright without disabling the
+  rule.
+
+**v1.1.1 (2026-02-18):**
+- Added `__all__` to `__init__conf__.py`; pinned `rtoml` / `pip-audit` for the 3.9 baseline.
+
+**v1.1.0 (2026-02-18):**
+- Added the `WritableStream` Protocol for narrower stream typing in `behaviors.py`.
 
 ---
 
-## Instructions for Use
+## Quick Reference
 
-1. Trigger this document whenever CLI behaviour helpers change.
-2. Keep module descriptions in sync with code during future refactors.
-3. Extend with new components when additional commands or behaviours ship.
+```python
+# Python API
+from bitranox_template_py_lib import (
+    CANONICAL_GREETING,
+    WritableStream,
+    emit_greeting,
+    noop_main,
+    print_info,
+    raise_intentional_failure,
+)
+
+from io import StringIO
+
+buffer = StringIO()
+emit_greeting(stream=buffer)   # writes "Hello World\n"
+```
+
+```bash
+# CLI usage
+bitranox_template_py_lib info          # print resolved metadata
+bitranox_template_py_lib hello         # emit the canonical greeting
+bitranox_template_py_lib fail          # exercise the failure path
+bitranox_template_py_lib --no-traceback fail   # one-line error, no traceback
+
+python -m bitranox_template_py_lib hello       # module entry point
+```
