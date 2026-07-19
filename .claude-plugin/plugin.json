@@ -1,7 +1,7 @@
 {
   "name": "bitranox-template-py-lib",
   "description": "Scaffold a new public bitranox Python library from this template. Ships the new-public-python-library skill: clone and rename the template, install it, use its rich-click CLI and library API, and cut a PyPI release with bmk.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": {
     "name": "bitranox"
   },
