@@ -1,0 +1,16 @@
+{
+  "name": "bitranox-template-py-lib",
+  "owner": {
+    "name": "bitranox"
+  },
+  "metadata": {
+    "description": "The bitranox public Python library template, delivered as a single Claude Code plugin: a skill to scaffold, install, and use a new public Python library built from this template."
+  },
+  "plugins": [
+    {
+      "name": "bitranox-template-py-lib",
+      "source": ".",
+      "description": "Scaffold a new public bitranox Python library from the template, then install, use, develop, and release it (rich-click CLI, bmk pipeline, PyPI)."
+    }
+  ]
+}
