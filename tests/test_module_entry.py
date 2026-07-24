@@ -2,13 +2,16 @@
 
 from __future__ import annotations
 
-from collections.abc import Callable
 import runpy
 import sys
+from typing import TYPE_CHECKING
 
 import pytest
 
 from bitranox_template_py_lib import cli as cli_mod
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 @pytest.mark.os_agnostic

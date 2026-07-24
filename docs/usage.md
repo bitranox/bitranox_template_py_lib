@@ -59,6 +59,7 @@ lib.emit_greeting()
 
 # to any object with a write() method:
 from io import StringIO
+
 buffer = StringIO()
 lib.emit_greeting(stream=buffer)
 assert buffer.getvalue() == "Hello World\n"
@@ -67,7 +68,7 @@ assert buffer.getvalue() == "Hello World\n"
 try:
     lib.raise_intentional_failure()
 except RuntimeError as exc:
-    print(f"caught expected failure: {exc}")   # I should fail
+    print(f"caught expected failure: {exc}")  # I should fail
 
 # print the package metadata block:
 lib.print_info()

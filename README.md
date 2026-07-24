@@ -99,8 +99,8 @@ Use it as a library:
 ```python
 import bitranox_template_py_lib as lib
 
-lib.emit_greeting()      # writes "Hello World" to stdout
-lib.print_info()         # print the package metadata block
+lib.emit_greeting()  # writes "Hello World" to stdout
+lib.print_info()  # print the package metadata block
 ```
 
 See [docs/usage.md](docs/usage.md) for the full command and API reference.

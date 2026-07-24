@@ -376,7 +376,7 @@ from bitranox_template_py_lib import (
 from io import StringIO
 
 buffer = StringIO()
-emit_greeting(stream=buffer)   # writes "Hello World\n"
+emit_greeting(stream=buffer)  # writes "Hello World\n"
 ```
 
 ```bash

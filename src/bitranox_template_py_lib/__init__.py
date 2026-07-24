@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from .__init__conf__ import print_info
 from .behaviors import (
     CANONICAL_GREETING,
     WritableStream,
@@ -9,7 +10,6 @@ from .behaviors import (
     noop_main,
     raise_intentional_failure,
 )
-from .__init__conf__ import print_info
 
 __all__ = [
     "CANONICAL_GREETING",

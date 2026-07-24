@@ -22,18 +22,22 @@ Note:
 from __future__ import annotations
 
 import sys
-from collections.abc import Sequence
 from dataclasses import dataclass
+from typing import TYPE_CHECKING
 
 import rich_click as click
 from click.core import ParameterSource
 from rich.console import Console
 from rich.style import Style
-from rich.traceback import Traceback, install as install_rich_traceback
+from rich.traceback import Traceback
+from rich.traceback import install as install_rich_traceback
 
 from . import __init__conf__
 from .behaviors import emit_greeting, noop_main, raise_intentional_failure
 from .typed_click import option, version_option
+
+if TYPE_CHECKING:
+    from collections.abc import Sequence
 
 __all__ = [
     "CLICK_CONTEXT_SETTINGS",
@@ -113,7 +117,7 @@ def _exit_code_from(exc: SystemExit) -> int:
     help="Show full Python traceback on errors (default: enabled)",
 )
 @click.pass_context
-def cli(ctx: click.Context, traceback: bool) -> None:
+def cli(ctx: click.Context, *, traceback: bool) -> None:
     """Root command storing global flags.
 
     When invoked without a subcommand, displays help unless --traceback

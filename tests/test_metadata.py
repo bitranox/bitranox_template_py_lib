@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
+import runpy
 from pathlib import Path
 from typing import Any
-import runpy
 
 import pytest
 import rtoml

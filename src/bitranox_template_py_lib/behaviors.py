@@ -21,9 +21,8 @@ Note:
 
 from __future__ import annotations
 
-from typing import Protocol
-
 import sys
+from typing import Protocol
 
 
 class WritableStream(Protocol):
@@ -130,6 +129,6 @@ __all__ = [
     "CANONICAL_GREETING",
     "WritableStream",
     "emit_greeting",
-    "raise_intentional_failure",
     "noop_main",
+    "raise_intentional_failure",
 ]

@@ -5,6 +5,22 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ## [Unreleased]
 
+## [1.1.3] 2026-07-24 15:56:45
+
+### Changed
+- Pinned the lint policy explicitly: added the curated `[tool.ruff.lint].select` list (the same
+  family set as `bitranox_template_py_cli`) plus matching `tests/*.py` per-file-ignores, so a future
+  ruff release widening its default rule set no longer reddens CI with hundreds of unrelated
+  findings.
+- Made the root `cli` group callback's `traceback` parameter keyword-only (`PLR0917`); Click still
+  invokes it via `**ctx.params`, so no call site changed.
+
+### Fixed
+- Replaced `print()` with `sys.stdout.write()` in `__init__conf__.print_info()` (`T201`), matching the
+  established fix in `bitranox_template_py_cli`.
+- Sorted `__all__` in `behaviors.py` (`RUF022`) and normalized import ordering across `src` and
+  `tests` (`I001`, `TC002`, `TC003`).
+
 ## [1.1.2] 2026-06-14
 
 ### Changed

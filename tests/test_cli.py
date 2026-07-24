@@ -2,11 +2,15 @@
 
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 import pytest
-from click.testing import CliRunner, Result
 
 from bitranox_template_py_lib import __init__conf__
 from bitranox_template_py_lib import cli as cli_mod
+
+if TYPE_CHECKING:
+    from click.testing import CliRunner, Result
 
 
 @pytest.mark.os_agnostic
