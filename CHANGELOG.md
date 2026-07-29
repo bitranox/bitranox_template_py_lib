@@ -17,6 +17,14 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
   CVE pin loses its marker for the same reason.
 - `cli._exit_code_from` and `cli._print_error`, plus the module-level `console` and the rich
   traceback installation they depended on. `lib_cli_exit_tools` covers all of it.
+- All nine `[tool.pip-audit].ignore-vulns` entries. Audited with zero ignore flags, from outside
+  the project so no config could apply: both the 75-package resolved dev tree and the project
+  `.venv` report no known vulnerabilities. Every id was inert, either because the package left
+  the tree (`py`, Pillow) or because it resolved past the fix (pip 26.1.2, cryptography 49.0.0,
+  requests 2.34.2, filelock 3.32.0 against fixes in 3.20.1 / 3.20.3). The table stays, empty,
+  with the policy for adding an id written next to it. The old comment was also wrong on the
+  facts: it described `GHSA-4xh5-x5gv-qwph` as a `py` ReDoS aliased to `PYSEC-2022-42969`, but
+  it is a pip symlink advisory and the two are not aliases.
 
 ### Added
 - `lib_cli_exit_tools>=2.3.4` as a runtime dependency. `main()` now publishes the traceback
@@ -26,6 +34,10 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
   and SIGTERM/SIGBREAK are handled the same way.
 - A regression test pinning that a command's `ctx.exit(n)` code survives to the process exit
   status, and one pinning `SystemExit` translation.
+- The `integration` pytest marker, which this project had never declared even though
+  `make testintegration` targets it. A project scaffolded from this template now inherits the
+  marker, so its first `@pytest.mark.integration` test does not fire an unknown-marker warning.
+  The template itself still has no integration tests, so the target collects nothing.
 
 ### Fixed
 - `main()` returned a hardcoded `0` on the non-exception path, discarding whatever the command

@@ -308,8 +308,11 @@ return code.
 **Doctests:** enabled via `--doctest-modules` (see `tool.pytest.ini_options`), so the
 docstring examples in `behaviors.py`, `cli.py`, and `__init__conf__.py` run as tests.
 
-**OS markers:** `os_agnostic`, `os_windows`, `os_macos`, `os_posix`, `os_linux`, and
-`local_only` scope tests to platforms and to local-only runs (skipped in CI).
+**Markers:** `os_agnostic`, `os_windows`, `os_macos`, `os_posix`, `os_linux` scope tests to
+platforms; `local_only` marks tests needing a local resource CI lacks (skipped in CI);
+`integration` marks tests needing an external resource (SMTP, database, API) and runs via
+`make testintegration`. The template declares `integration` for projects scaffolded from it
+but ships no integration tests of its own, so that target collects nothing here.
 
 **Coverage gate:** `fail_under = 85` over `src/bitranox_template_py_lib`.
 
@@ -338,9 +341,10 @@ docstring examples in `behaviors.py`, `cli.py`, and `__init__conf__.py` run as t
   the constant greeting.
 - **Type boundary isolated:** the single untyped third-party surface is quarantined in
   `typed_click.py`; the rest is strict-typed.
-- **Dependency hygiene:** `pip-audit` runs in CI; known-unfixable advisories are pinned in
-  `tool.pip-audit.ignore-vulns` with rationale, and `codecov-cli` is commented out (not
-  deleted) to avoid dragging click below the CVE-2026-7246 fix.
+- **Dependency hygiene:** `pip-audit` runs in CI. `tool.pip-audit.ignore-vulns` is empty as of
+  2.0.0 because the tree audits clean; an id belongs there only when another dependency caps
+  the package below the fix, or when no fixed release exists. Removing the capper is preferred:
+  `codecov-cli` is commented out (not deleted) to keep click above the CVE-2026-7246 fix.
 
 ---
 

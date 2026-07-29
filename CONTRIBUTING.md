@@ -39,6 +39,8 @@ workflow and the checks a change must pass before it merges. For the tooling det
 - Name tests for the behavior under test and keep each case focused.
 - Mark OS constraints with the provided markers (`@pytest.mark.os_agnostic`,
   `@pytest.mark.os_windows`, and the rest declared in `pyproject.toml`).
+- Mark a test that needs an external resource (SMTP, database, API) with
+  `@pytest.mark.integration`. Those run via `make testintegration`, not `make test`.
 - When you add or change a CLI behavior or metadata, update the matching test in
   `tests/test_cli.py`, `tests/test_metadata.py`, or `tests/test_module_entry.py`.
 
