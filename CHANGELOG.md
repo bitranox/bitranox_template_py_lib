@@ -5,6 +5,49 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ## [Unreleased]
 
+## [2.0.0] 2026-07-29
+
+### Removed
+- **BREAKING:** Python 3.9 support. `requires-python` is now `>=3.10`, matching the floor of the
+  bitranox runtime libraries this template builds on. Installs on 3.9 will no longer resolve.
+- Every `python_version<'3.10'` / `python_version>='3.10'` environment marker in the runtime
+  dependencies, the `dev` extra, and `build-system.requires`, along with the caps they carried
+  (`rtoml<0.13`, `pytest<9`, `bandit<1.9`, `build<1.5.0`, `pip-audit<2.10`, `import-linter<2.6`,
+  `setuptools<83`, `hatchling<1.28`). Each list is now a single unconditional floor. The `click`
+  CVE pin loses its marker for the same reason.
+- `cli._exit_code_from` and `cli._print_error`, plus the module-level `console` and the rich
+  traceback installation they depended on. `lib_cli_exit_tools` covers all of it.
+
+### Added
+- `lib_cli_exit_tools>=2.3.4` as a runtime dependency. `main()` now publishes the traceback
+  preference to `lib_cli_exit_tools.config` and runs the command group through
+  `run_cli()`, which brings signal handling the template previously lacked: Ctrl-C exits 130
+  with a clean `Aborted (SIGINT).` message instead of dumping a `KeyboardInterrupt` traceback,
+  and SIGTERM/SIGBREAK are handled the same way.
+- A regression test pinning that a command's `ctx.exit(n)` code survives to the process exit
+  status, and one pinning `SystemExit` translation.
+
+### Fixed
+- `main()` returned a hardcoded `0` on the non-exception path, discarding whatever the command
+  passed to `ctx.exit()`. Click runs with `standalone_mode=False`, which makes it *return* that
+  code rather than raise it, so a command reporting a negative answer - nothing found, host did
+  not respond - exited `0` and read as success. This is the same defect fixed upstream in
+  `lib_cli_exit_tools` 2.3.4, and adopting the library fixes it here.
+- `main()` treated an explicitly empty `argv=[]` as "no argv given" and fell back to
+  `sys.argv[1:]` when sniffing for `--no-traceback`, while passing the empty list on to Click.
+  The check is now `argv is not None`, so both paths see the same arguments.
+- Error output goes to stderr instead of stdout, so a shell pipeline no longer mixes
+  diagnostics into the command's data.
+
+### Changed
+- `ruff`'s `target-version` is `py310`.
+- `CliContext` is declared with `slots=True`, so assigning an undeclared attribute raises
+  instead of silently attaching it to the shared context object.
+- `typed_click._CommandDecorator` is annotated `TypeAlias` (PEP 613) and the module now carries
+  `from __future__ import annotations` like the rest of the package.
+- The one-line error summary is now `RuntimeError: ...` rather than `Error: RuntimeError: ...`;
+  the `Error: ` prefix was local to the removed `_print_error`.
+
 ## [1.1.3] 2026-07-24 15:56:45
 
 ### Changed

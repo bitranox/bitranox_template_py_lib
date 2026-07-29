@@ -32,8 +32,8 @@ bitranox_template_py_lib` invoke the same entry point.
 ```bash
 bitranox_template_py_lib hello                 # -> Hello World
 bitranox_template_py_lib info                  # metadata block
-bitranox_template_py_lib fail                  # full traceback, exit code 1
-bitranox_template_py_lib --no-traceback fail   # one-line error, exit code 1
+bitranox_template_py_lib fail                  # full traceback on stderr, exit code 1
+bitranox_template_py_lib --no-traceback fail   # one-line error on stderr, exit code 1
 bitranox_template_py_lib --version
 
 # same behavior, other entry points:
@@ -44,8 +44,19 @@ uvx bitranox_template_py_lib info
 
 ### Exit codes
 
-`main()` returns `0` on success, the `SystemExit` code when one is raised, and `1` for any
-other uncaught exception (after printing the error).
+`main()` hands the command group to `lib_cli_exit_tools.run_cli()`, which maps the outcome:
+
+| Outcome                        | Exit code                                         |
+|--------------------------------|---------------------------------------------------|
+| Command completes              | `0`                                               |
+| Command calls `ctx.exit(n)`    | `n` - use this to report "ran fine, answer is no" |
+| `SystemExit(n)`                | `n`                                               |
+| Ctrl-C (`KeyboardInterrupt`)   | `130`, after printing `Aborted (SIGINT).`         |
+| A `ClickException` (bad usage) | Click's own code, after it shows the message      |
+| Any other uncaught exception   | Errno-derived, `1` when nothing more specific     |
+
+Diagnostics go to stderr, so `bitranox_template_py_lib hello > out.txt` keeps errors on the
+terminal and only the command's data in the file.
 
 ## Library API
 

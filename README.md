@@ -12,7 +12,7 @@
 [![Maintainability](https://qlty.sh/badges/041ba2c1-37d6-40bb-85a0-ec5a8a0aca0c/maintainability.svg)](https://qlty.sh/gh/bitranox/projects/bitranox_template_py_lib)
 [![security: bandit](https://img.shields.io/badge/security-bandit-yellow.svg)](https://github.com/PyCQA/bandit)
 
-A scaffold for backward-compatible (Python 3.9+) libraries that ship a registered CLI command,
+A scaffold for backward-compatible (Python 3.10+) libraries that ship a registered CLI command,
 with a rich-click entry point, strict typing, and a full test-and-release pipeline already wired.
 
 ## Why a template
@@ -29,7 +29,7 @@ wrong, and then copy by hand into the next project, where you will make them sli
 again. A blank page is not a fresh start so much as a bill you have agreed to pay later.
 
 A template is the boring answer that settles the bill up front. You inherit a working set of
-defaults, tests green across six Python versions and three operating systems, strict typing, a
+defaults, tests green across five Python versions and three operating systems, strict typing, a
 lint/type/test/release pipeline behind a single `make` command, a CLI that already runs, so the
 only decisions left are the ones that are actually about your library. The point is not that
 these are the only good choices. The point is that they are already made and already wired

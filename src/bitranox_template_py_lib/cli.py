@@ -17,6 +17,10 @@ Note:
     targets register the console script defined in __init__conf__. The module
     entry point (python -m) reuses the same helpers for consistency.
 
+    Process-level concerns - signal handling, exception rendering, and the
+    exception-to-exit-code mapping - are delegated to ``lib_cli_exit_tools``
+    rather than reimplemented here, so every bitranox CLI exits the same way.
+
 """
 
 from __future__ import annotations
@@ -25,12 +29,9 @@ import sys
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
+import lib_cli_exit_tools
 import rich_click as click
 from click.core import ParameterSource
-from rich.console import Console
-from rich.style import Style
-from rich.traceback import Traceback
-from rich.traceback import install as install_rich_traceback
 
 from . import __init__conf__
 from .behaviors import emit_greeting, noop_main, raise_intentional_failure
@@ -46,21 +47,14 @@ __all__ = [
     "cli_fail",
     "cli_hello",
     "cli_info",
-    "console",
     "main",
 ]
 
 #: Shared Click context flags for consistent help output.
 CLICK_CONTEXT_SETTINGS = {"help_option_names": ["-h", "--help"]}
 
-#: Console for rich output
-console = Console()
 
-#: Style for error messages when traceback is suppressed
-_ERROR_STYLE = Style(color="red", bold=True)
-
-
-@dataclass
+@dataclass(slots=True)
 class CliContext:
     """Typed context object for Click's ``ctx.obj``.
 
@@ -73,31 +67,6 @@ class CliContext:
     """
 
     traceback: bool = True
-
-
-def _exit_code_from(exc: SystemExit) -> int:
-    """Extract integer exit code from SystemExit.
-
-    Args:
-        exc: The SystemExit exception to extract the code from.
-
-    Returns:
-        Integer exit code: the code itself if int, 1 if truthy, 0 if falsy.
-
-    Examples:
-        >>> _exit_code_from(SystemExit(0))
-        0
-        >>> _exit_code_from(SystemExit(42))
-        42
-        >>> _exit_code_from(SystemExit("error"))
-        1
-        >>> _exit_code_from(SystemExit(None))
-        0
-
-    """
-    if isinstance(exc.code, int):
-        return exc.code
-    return 1 if exc.code else 0
 
 
 @click.group(
@@ -174,6 +143,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     """Execute the CLI and return the exit code.
 
     This is the entry point used by console scripts and python -m execution.
+    Execution runs inside a ``lib_cli_exit_tools`` session, which installs
+    signal handlers, renders any escaping exception to stderr, and translates
+    it into the exit code the OS expects. A command that ends normally reports
+    whatever it passed to ``ctx.exit()``, so "ran fine, answer is no" stays
+    distinguishable from success.
 
     Args:
         argv: Optional sequence of CLI arguments. None uses sys.argv.
@@ -187,39 +161,18 @@ def main(argv: Sequence[str] | None = None) -> int:
         0
 
     """
-    argv_list = list(argv) if argv else sys.argv[1:]
+    argv_list = list(argv) if argv is not None else sys.argv[1:]
+
+    # The flag is read off argv before Click parses it, because the traceback
+    # preference has to be in force for failures raised during parsing too.
     show_traceback = "--no-traceback" not in argv_list
 
-    if show_traceback:
-        install_rich_traceback(show_locals=True)
-
-    try:
-        cli(args=argv, standalone_mode=False, prog_name=__init__conf__.shell_command)
-        return 0
-    except SystemExit as exc:
-        return _exit_code_from(exc)
-    except Exception as exc:
-        _print_error(exc, show_traceback=show_traceback)
-        return 1
-
-
-def _print_error(exc: Exception, *, show_traceback: bool) -> None:
-    """Print error to console with or without full traceback.
-
-    Args:
-        exc: The exception to display.
-        show_traceback: If True, show full rich traceback with locals.
-            If False, show simple one-line error message.
-
-    """
-    if show_traceback:
-        tb = Traceback.from_exception(
-            type(exc),
-            exc,
-            exc.__traceback__,
-            show_locals=True,
-            width=120,
+    with lib_cli_exit_tools.config_overrides(
+        traceback=show_traceback,
+        traceback_force_color=show_traceback,
+    ):
+        return lib_cli_exit_tools.run_cli(
+            cli,
+            argv=argv_list,
+            prog_name=__init__conf__.shell_command,
         )
-        console.print(tb)
-    else:
-        console.print(f"Error: {type(exc).__name__}: {exc}", style=_ERROR_STYLE)

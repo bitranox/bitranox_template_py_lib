@@ -15,15 +15,19 @@ Other click members (``command``, ``group``, ``echo``, ``Context``, ``Path`` ...
 type cleanly and are still used directly as ``click.X`` at call sites.
 """
 
+from __future__ import annotations
+
 from collections.abc import Callable
-from typing import Any, Protocol, cast
+from typing import Any, Protocol, TypeAlias, cast
 
 import rich_click as click
 
 # Click decorators turn a command function (or another decorator's result) into a
 # wrapped callable. ``Any`` is fully known to the type checker, so this alias stays
 # clean and works both as ``@option(...)`` and as a value collected into a list.
-_CommandDecorator = Callable[[Callable[..., Any]], Callable[..., Any]]
+# ``TypeAlias`` states the intent explicitly, so a checker reports a malformed
+# alias here rather than silently treating it as an ordinary assignment.
+_CommandDecorator: TypeAlias = Callable[[Callable[..., Any]], Callable[..., Any]]
 
 
 class _RichClickDecorators(Protocol):

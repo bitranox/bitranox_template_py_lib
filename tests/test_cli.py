@@ -5,6 +5,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import pytest
+import rich_click as click
 
 from bitranox_template_py_lib import __init__conf__
 from bitranox_template_py_lib import cli as cli_mod
@@ -74,7 +75,7 @@ def test_no_traceback_flag_suppresses_traceback(capsys: pytest.CaptureFixture[st
 
     captured = capsys.readouterr()
     output = captured.out + captured.err
-    assert "Error: RuntimeError: I should fail" in output
+    assert "RuntimeError: I should fail" in output
     assert "Traceback" not in output
 
 
@@ -140,17 +141,35 @@ def test_version_option_displays_version(cli_runner: CliRunner) -> None:
 
 
 @pytest.mark.os_agnostic
-def test_main_catches_system_exit_and_returns_exit_code(monkeypatch: pytest.MonkeyPatch) -> None:
-    """main() should catch SystemExit and extract the exit code via _exit_code_from."""
+def test_main_translates_system_exit_into_its_exit_code(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A SystemExit escaping a command should surface as that exit code."""
 
-    def fake_cli(**_kwargs: object) -> None:
+    @click.command("boom")
+    def boom() -> None:
         raise SystemExit(42)
 
-    monkeypatch.setattr(cli_mod, "cli", fake_cli)
+    monkeypatch.setattr(cli_mod, "cli", boom)
 
-    exit_code = cli_mod.main(["hello"])
+    assert cli_mod.main([]) == 42
 
-    assert exit_code == 42
+
+@pytest.mark.os_agnostic
+def test_main_reports_the_code_a_command_passed_to_ctx_exit(monkeypatch: pytest.MonkeyPatch) -> None:
+    """A command that ends normally still reports its own ``ctx.exit()`` code.
+
+    Click runs with ``standalone_mode=False``, so ``ctx.exit(n)`` is *returned*
+    rather than raised. Dropping that value would collapse "ran fine, the
+    answer is no" into success, which is what lib_cli_exit_tools 2.3.4 fixed.
+    """
+
+    @click.command("nothing-found")
+    @click.pass_context
+    def nothing_found(ctx: click.Context) -> None:
+        ctx.exit(3)
+
+    monkeypatch.setattr(cli_mod, "cli", nothing_found)
+
+    assert cli_mod.main([]) == 3
 
 
 @pytest.mark.os_agnostic

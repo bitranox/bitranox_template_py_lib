@@ -15,8 +15,10 @@ start to finish. They set the problem and made every call.
 - The problem is theirs: starting a new backward-compatible Python library re-litigates the same
   boilerplate every time, done in a hurry and slightly wrong, so the good defaults should be
   inherited once instead of retyped.
-- Every structural decision was the human's: the Python 3.9 baseline kept on purpose for
-  backward compatibility; the layered split where the CLI adapter depends on the domain
+- Every structural decision was the human's: the Python 3.10 baseline, chosen to match the
+  floor of the bitranox runtime libraries the template builds on; delegating signals, error
+  rendering and exit codes to `lib_cli_exit_tools` rather than reimplementing them per
+  project; the layered split where the CLI adapter depends on the domain
   behaviors and never the reverse, enforced in CI by import-linter; the choice to generate
   package metadata into a module synced from `pyproject.toml` rather than query it at runtime;
   quarantining the one untyped third-party surface in `typed_click.py` so the rest stays strict
@@ -41,7 +43,7 @@ AI's. The human directed and approved every action and owns the result.
 The template's own gate is `make test`, and it is the same gate CI runs: Ruff (lint and format),
 Pyright in strict mode, the import-linter layer contract, Bandit, pip-audit, and Pytest with
 coverage, including the doctests embedded in the source modules. CI runs that gate across three
-operating systems (Linux, macOS, Windows) and CPython 3.9 through 3.14 on every push, and again
+operating systems (Linux, macOS, Windows) and CPython 3.10 through 3.14 on every push, and again
 before a release publishes to PyPI. The badges at the top of the README report the live state.
 
 ## Checking it yourself

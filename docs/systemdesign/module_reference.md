@@ -2,7 +2,7 @@
 
 ## Status
 
-Template / Scaffold (v1.1.2)
+Template / Scaffold (v2.0.0)
 
 ## Links & References
 
@@ -47,7 +47,8 @@ working, tested, lint-clean baseline rather than an empty `src/`.
 2. **Placeholder Domain** - `emit_greeting`, `raise_intentional_failure`, and `noop_main`
    exercise the success, failure, and no-op paths end to end.
 3. **rich-click CLI** - `info`, `hello`, and `fail` commands plus a global
-   `--traceback/--no-traceback` toggle.
+   `--traceback/--no-traceback` toggle, with signal handling, error rendering, and
+   exit-code translation delegated to `lib_cli_exit_tools`.
 4. **Strict Typing** - pyright strict mode, with the single untyped third-party boundary
    isolated in `typed_click.py`.
 5. **Generated Metadata** - constants in `__init__conf__.py` kept in sync with
@@ -70,18 +71,21 @@ Platform Adapter (__init__conf__.py)     <- static package metadata
 
 **Data Flow:**
 1. A console script or `python -m` invocation calls `cli.main()`.
-2. `main()` installs the rich traceback handler (unless suppressed) and dispatches
-   the click command group.
+2. `main()` reads the traceback preference off `argv`, publishes it to
+   `lib_cli_exit_tools.config`, and hands the click group to
+   `lib_cli_exit_tools.run_cli()`.
 3. Each command delegates to a behavior helper (`emit_greeting`, `raise_intentional_failure`)
    or to `__init__conf__.print_info()`.
-4. Exit codes are normalized: 0 on success, the `SystemExit` code when raised, 1 on a
-   caught exception.
+4. `run_cli()` translates the outcome into an exit code: 0 on plain success, whatever the
+   command passed to `ctx.exit()`, 130 on Ctrl-C, and an errno-derived code for an escaping
+   exception.
 
 **Dependency Direction:** CLI depends on behaviors, never the reverse. This is enforced in
 CI by import-linter (`tool.importlinter` contract "CLI depends on behaviors only").
 
 **Dependencies:**
-* **Runtime:** `rich-click>=1.9.8`, `rtoml` (version-split for the Python 3.9 baseline).
+* **Runtime:** `lib_cli_exit_tools>=2.3.4` (signals, error rendering, exit codes),
+  `rich-click>=1.9.8`, `rtoml>=0.13.0`.
 * **Development:** pytest, ruff, pyright, bandit, build, twine, import-linter, pip-audit,
    pydantic, textual (install with the `[dev]` extra).
 
@@ -176,7 +180,10 @@ Wires the behavior helpers into a rich-click interface.
 
 **Attributes:** `traceback: bool = True` - whether to show a full traceback on error.
 
-**Location:** src/bitranox_template_py_lib/cli.py:59
+Declared with `slots=True`, so assigning an attribute the class does not define raises
+instead of silently attaching it to the shared context object.
+
+**Location:** src/bitranox_template_py_lib/cli.py:58
 
 ---
 
@@ -185,7 +192,7 @@ Wires the behavior helpers into a rich-click interface.
 **Purpose:** Root group carrying the global `--traceback/--no-traceback` flag and the
 `--version` option. With no subcommand and a default flag value it prints help.
 
-**Location:** src/bitranox_template_py_lib/cli.py:99
+**Location:** src/bitranox_template_py_lib/cli.py:88
 
 ---
 
@@ -193,7 +200,7 @@ Wires the behavior helpers into a rich-click interface.
 
 **Purpose:** Print resolved package metadata via `__init__conf__.print_info()`.
 
-**Location:** src/bitranox_template_py_lib/cli.py:151
+**Location:** src/bitranox_template_py_lib/cli.py:124
 
 ---
 
@@ -201,7 +208,7 @@ Wires the behavior helpers into a rich-click interface.
 
 **Purpose:** Demonstrate the success path by emitting the canonical greeting.
 
-**Location:** src/bitranox_template_py_lib/cli.py:157
+**Location:** src/bitranox_template_py_lib/cli.py:130
 
 ---
 
@@ -209,21 +216,23 @@ Wires the behavior helpers into a rich-click interface.
 
 **Purpose:** Demonstrate error handling by calling `raise_intentional_failure()`.
 
-**Location:** src/bitranox_template_py_lib/cli.py:163
+**Location:** src/bitranox_template_py_lib/cli.py:136
 
 ---
 
 #### `main(argv: Sequence[str] | None = None) -> int`
 
-**Purpose:** Entry point for console scripts and `python -m`. Installs the rich traceback
-handler unless `--no-traceback` is present, dispatches the command group, and returns a
-normalized exit code.
+**Purpose:** Entry point for console scripts and `python -m`. Publishes the traceback
+preference read off `argv` to `lib_cli_exit_tools.config`, then runs the command group
+through `lib_cli_exit_tools.run_cli()`, which installs signal handlers, renders any
+escaping exception to stderr, and translates the outcome into an exit code.
 
 **Input:** `argv` (optional) - argument sequence; `None` uses `sys.argv[1:]`.
 
-**Output:** Exit code (0 success, `SystemExit` code when raised, 1 on caught exception).
+**Output:** Exit code (0 on plain success, the command's own `ctx.exit()` code, 130 on
+Ctrl-C, an errno-derived code on an escaping exception).
 
-**Location:** src/bitranox_template_py_lib/cli.py:169
+**Location:** src/bitranox_template_py_lib/cli.py:142
 
 ---
 
@@ -263,15 +272,21 @@ return code.
 
 ## Implementation Details
 
-**Exit-code normalization (`_exit_code_from`):**
-1. Return the `SystemExit.code` when it is an int.
-2. Otherwise return 1 when the code is truthy, 0 when falsy.
+**Exit-code translation (`lib_cli_exit_tools.run_cli`):**
+1. Click runs with `standalone_mode=False`, so a command that calls `ctx.exit(n)` *returns*
+   `n` instead of raising it, and `run_cli` reports that code. A command that simply
+   finishes returns `None` and exits 0. This keeps "ran fine, the answer is no" distinct
+   from success, which needs `lib_cli_exit_tools>=2.3.4`.
+2. `SystemExit` yields its integer payload; `KeyboardInterrupt` yields 130; a `ClickException`
+   shows itself and yields its own code.
+3. Anything else is mapped through errno / platform conventions, defaulting to 1.
 
 **Traceback handling:**
-- `main()` inspects `argv` for `--no-traceback`; when absent it installs the rich traceback
-  handler with locals.
-- On a caught exception `_print_error` renders either a full rich `Traceback` (with locals)
-  or a single red one-line message, depending on the toggle.
+- `main()` inspects `argv` for `--no-traceback` before Click parses it, so the preference is
+  already in force for failures raised during parsing, and publishes it to
+  `lib_cli_exit_tools.config` for the duration of the run.
+- `run_cli` then renders either a full rich traceback or a single red one-line summary to
+  stderr, depending on that toggle.
 
 **Metadata sync:**
 - Constants in `__init__conf__.py` mirror `pyproject.toml`. After changing project metadata,
@@ -303,9 +318,10 @@ docstring examples in `behaviors.py`, `cli.py`, and `__init__conf__.py` run as t
 ## Known Limitations & Future Enhancements
 
 **By design (do not "fix"):**
-- Python 3.9 baseline is intentional for backward compatibility with older applications.
+- Python 3.10 is the baseline, matching the floor of the bitranox runtime libraries this
+  template builds on.
 - `from __future__ import annotations` is kept across modules for consistency and forward
-  compatibility.
+  compatibility, even though `X | None` needs no import from 3.10 on.
 - The domain layer is a placeholder: `emit_greeting`, `raise_intentional_failure`, and
   `noop_main` exist to prove the wiring, not to provide features.
 
@@ -346,6 +362,13 @@ docstring examples in `behaviors.py`, `cli.py`, and `__init__conf__.py` run as t
 ---
 
 ## Version History
+
+**v2.0.0 (2026-07-29):**
+- Raised the baseline to Python 3.10 and dropped every `python_version` environment marker
+  from the dependency lists.
+- Adopted `lib_cli_exit_tools>=2.3.4` for signal handling, error rendering, and exit-code
+  translation, replacing the local `_exit_code_from` / `_print_error` helpers. This also fixed
+  `main()` discarding a command's `ctx.exit()` code and moved error output to stderr.
 
 **v1.1.2 (2026-06-14):**
 - Added `typed_click.py` facade wrapping rich-click's `option` / `version_option` decorators
