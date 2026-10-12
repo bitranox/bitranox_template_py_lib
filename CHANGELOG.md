@@ -5,6 +5,8 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ## [Unreleased]
 
+## [2.0.2] 2026-10-12 22:51:08
+
 ### Added
 
 - Python 3.15 is declared and tested: the classifier puts it into the CI matrix and
