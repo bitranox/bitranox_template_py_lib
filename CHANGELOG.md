@@ -9,12 +9,17 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 - Python 3.15 is declared and tested: the classifier puts it into the CI matrix and
   `make test-all`, and `make test` now builds the development venv on 3.15.
+- `uv.lock` is committed, and `[tool.uv] exclude-newer` sets a cooldown that keeps releases younger
+  than it out of the lock. CI installs exactly the locked tree on push and pull request; the nightly
+  scheduled run still resolves afresh to catch upstream breakage early.
 
 ### Changed
 
 - The devcontainer image and interpreter path move from Python 3.13 to 3.14.
 - Requires `rtoml>=0.14.0` (and, in the dev extra, `ruff>=0.17.0`, `pydantic>=2.14.1`); the
   Makefile is bmk 3.19.0.
+- The install section explains why installing with uv protects against supply-chain attacks and why
+  a plain `pip install` from PyPI does not.
 
 ## [2.0.1] 2026-07-30 18:06:55
 
