@@ -7,7 +7,7 @@ requires-python = ">=3.10"
 dependencies = [
     "lib_cli_exit_tools>=2.4.0",
     "rich-click>=1.9.9",
-    "rtoml>=0.13.0",
+    "rtoml>=0.14.0",
 ]
 license = { text = "MIT" }
 authors = [{ name = "bitranox", email = "bitranox@gmail.com" }]
@@ -20,6 +20,7 @@ classifiers = [
   "Programming Language :: Python :: 3.12",
   "Programming Language :: Python :: 3.13",
   "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
   "License :: OSI Approved :: MIT License",
   "Environment :: Console",
   "Operating System :: OS Independent",
@@ -44,7 +45,7 @@ Issues = "https://github.com/bitranox/bitranox_template_py_lib/issues"
 dev = [
   "pytest>=9.1.1",
   "pytest-cov>=7.1.0",
-  "ruff>=0.16.10",
+  "ruff>=0.17.0",
   "pyright[nodejs]>=1.1.414",
   "bandit>=1.9.4",
   # 1.5.1 was yanked upstream (unintended breaking changes), so 1.5.0 is the newest usable
@@ -63,9 +64,9 @@ dev = [
   "pip-audit>=2.10.1",
   "textual>=8.2.8",
   "import-linter>=2.15",
-  "pydantic>=2.14.0",
+  "pydantic>=2.14.1",
   "setuptools>=84.0.0",
-  "rtoml>=0.13.0",
+  "rtoml>=0.14.0",
 ]
 
 [project.scripts]

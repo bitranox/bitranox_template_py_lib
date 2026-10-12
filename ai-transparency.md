@@ -43,7 +43,7 @@ AI's. The human directed and approved every action and owns the result.
 The template's own gate is `make test`, and it is the same gate CI runs: Ruff (lint and format),
 Pyright in strict mode, the import-linter layer contract, Bandit, pip-audit, and Pytest with
 coverage, including the doctests embedded in the source modules. CI runs that gate across three
-operating systems (Linux, macOS, Windows) and CPython 3.10 through 3.14 on every push, and again
+operating systems (Linux, macOS, Windows) and CPython 3.10 through 3.15 on every push, and again
 before a release publishes to PyPI. The badges at the top of the README report the live state.
 
 ## Checking it yourself
