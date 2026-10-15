@@ -5,6 +5,12 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ## [Unreleased]
 
+### Changed
+
+- Ruff selects `C90` (mccabe), so a function over cyclomatic complexity 10, the house hard limit,
+  now fails `make test`; before, nothing enforced it. Proven with a complexity-11 function, which
+  ruff reported only once `C90` was selected; the tree itself already passes.
+
 ### Tests
 
 - The `os_windows`, `os_macos`, `os_linux` and `os_posix` markers now skip a test off its platform
