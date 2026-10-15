@@ -87,9 +87,7 @@ def sdist_members(built_tree: Path, tmp_path_factory: pytest.TempPathFactory) ->
 
 @pytest.fixture(scope="module")
 def wheel_members(built_tree: Path, tmp_path_factory: pytest.TempPathFactory) -> list[str]:
-    built = list(
-        WheelBuilder(str(built_tree)).build(directory=str(tmp_path_factory.mktemp("wheel")), versions=["standard"])
-    )
+    built = list(WheelBuilder(str(built_tree)).build(directory=str(tmp_path_factory.mktemp("wheel")), versions=["standard"]))
     assert len(built) == 1, f"expected one wheel, got {built}"
     with zipfile.ZipFile(built[0]) as archive:
         members = archive.namelist()
@@ -110,9 +108,7 @@ def test_the_sdist_holds_only_allowlisted_top_level_entries(sdist_members: list[
 
 @pytest.mark.os_agnostic
 def test_the_sdist_ships_only_the_package_under_src(sdist_members: list[str]) -> None:
-    under_src = {
-        member.split("/")[1] for member in sdist_members if member.startswith("src/") and member.count("/") >= 1
-    }
+    under_src = {member.split("/")[1] for member in sdist_members if member.startswith("src/") and member.count("/") >= 1}
 
     assert under_src == {PACKAGE}
 
