@@ -5,6 +5,12 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ## [Unreleased]
 
+### Tests
+
+- The `os_windows`, `os_macos`, `os_linux` and `os_posix` markers now skip a test off its platform
+  (`pytest_runtest_setup` in `tests/conftest.py`); registered in `pyproject.toml` alone they skipped
+  nothing, so a test trusting its marker ran everywhere. `tests/test_platform_markers.py` pins it.
+
 ## [2.0.2] 2026-10-12 22:51:08
 
 ### Added
