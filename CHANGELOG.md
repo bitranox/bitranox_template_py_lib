@@ -7,6 +7,8 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ### Fixed
 
+- `ai-transparency.md` no longer says CI runs the gate again before a release publishes to PyPI:
+  the release workflow only builds and publishes. CI runs on every push and pull request.
 - The source distribution ships only the package, its tests, its docs, `README.md`, `LICENSE`,
   `CHANGELOG.md` and `pyproject.toml` (an include list). Earlier sdists also carried repository
   working files such as `reset_git_history.sh` and, in a local build, anything hidden only through
