@@ -24,6 +24,9 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ### Tests
 
+- The sdist bytecode check in `tests/test_packaging.py` matches a path component named `__pycache__`
+  (or a `.pyc` file); its substring test failed a repository whose test fixtures sit under a directory
+  such as `test__pycache__`.
 - The `os_windows`, `os_macos`, `os_linux` and `os_posix` markers now skip a test off its platform
   (`pytest_runtest_setup` in `tests/conftest.py`); registered in `pyproject.toml` alone they skipped
   nothing, so a test trusting its marker ran everywhere. `tests/test_platform_markers.py` pins it.
