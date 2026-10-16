@@ -70,7 +70,7 @@ dev = [
 
 [project.scripts]
 bitranox_template_py_lib = "bitranox_template_py_lib.cli:main"
-bitranox-template-py-cli = "bitranox_template_py_lib.cli:main"
+bitranox-template-py-lib = "bitranox_template_py_lib.cli:main"
 
 [build-system]
 requires = [

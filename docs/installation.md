@@ -1,7 +1,7 @@
 # Installation
 
 `bitranox_template_py_lib` is a normal PEP 621 package. Every method below registers two
-console commands on your PATH: `bitranox_template_py_lib` and `bitranox-template-py-cli`
+console commands on your PATH: `bitranox_template_py_lib` and `bitranox-template-py-lib`
 (both point at the same CLI).
 
 The examples use [uv](https://docs.astral.sh/uv/), a fast Rust-based replacement for
@@ -42,7 +42,7 @@ Installs into an isolated environment and puts the commands on your PATH:
 uv tool install bitranox_template_py_lib
 uv tool upgrade bitranox_template_py_lib
 # from GitHub:
-uv tool install --from "git+https://github.com/bitranox/bitranox_template_py_lib.git" bitranox-template-py-cli
+uv tool install --from "git+https://github.com/bitranox/bitranox_template_py_lib.git" bitranox-template-py-lib
 ```
 
 ## 3. Run once, without installing (uvx)

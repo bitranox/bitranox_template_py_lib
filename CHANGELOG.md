@@ -21,6 +21,11 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 - Ruff selects `C90` (mccabe), so a function over cyclomatic complexity 10, the house hard limit,
   now fails `make test`; before, nothing enforced it. Proven with a complexity-11 function, which
   ruff reported only once `C90` was selected; the tree itself already passes.
+- The dashed console command is `bitranox-template-py-lib`; it was `bitranox-template-py-cli`, the
+  command name of the CLI template, so installing both templates let one overwrite the other's
+  command on PATH. The documented `uv tool install --from "git+..." bitranox-template-py-cli` also
+  failed (exit 2): uv takes a package name there, and it now matches the package. `rename.sh` now
+  turns the command into the new library's own dashed name; the old one survived the rename.
 
 ### Tests
 

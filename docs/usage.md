@@ -8,7 +8,7 @@ Replace the placeholder behaviors with your own once you clone it.
 
 The CLI is built on [rich-click](https://github.com/ewels/rich-click), so help, errors and
 tracebacks render with Rich styling while keeping click's ergonomics. Both console commands
-(`bitranox_template_py_lib` and `bitranox-template-py-cli`) and `python -m
+(`bitranox_template_py_lib` and `bitranox-template-py-lib`) and `python -m
 bitranox_template_py_lib` invoke the same entry point.
 
 ### Commands
@@ -37,7 +37,7 @@ bitranox_template_py_lib --no-traceback fail   # one-line error on stderr, exit 
 bitranox_template_py_lib --version
 
 # same behavior, other entry points:
-bitranox-template-py-cli info
+bitranox-template-py-lib info
 python -m bitranox_template_py_lib info
 uvx bitranox_template_py_lib info
 ```
