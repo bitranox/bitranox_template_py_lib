@@ -244,5 +244,5 @@ max-line-length = 120
 ignores = ["E003"]
 
 [tool.uv]
-exclude-newer = "1 day"
+exclude-newer = "7 days"
 exclude-newer-package = {lib-cli-exit-tools = false}
