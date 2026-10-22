@@ -59,13 +59,14 @@ dev = [
   # Re-enable once codecov-cli relaxes its click<8.3.0 pin.
   # "codecov-cli>=11.2.6",
   # Transitive CVE pins
-  "click>=8.5.0",  # CVE-2026-7246
+  "click>=8.5.0",         # CVE-2026-7246
   "pip-audit>=2.10.1",
   "textual>=8.2.8",
   "import-linter>=2.15",
   "pydantic>=2.14.1",
   "setuptools>=84.0.0",
   "rtoml>=0.14.0",
+  "certifi>=2026.10.19",  # PYSEC-2026-4320
 ]
 
 [project.scripts]
@@ -245,4 +246,4 @@ ignores = ["E003"]
 
 [tool.uv]
 exclude-newer = "7 days"
-exclude-newer-package = {lib-cli-exit-tools = false}
+exclude-newer-package = {lib-cli-exit-tools = false, certifi = "2026-10-20T02:24:17Z"}
