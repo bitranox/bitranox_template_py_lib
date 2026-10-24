@@ -7,6 +7,11 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ### Fixed
 
+- `reset_git_history.sh` publishes the whole working tree minus ignored files. It staged only
+  tracked files, so after `rename.sh` (which leaves the renamed package untracked) it force-pushed a
+  repository without its source. It now refuses when anything is left unstaged, and keeps `.idea`
+  out whether or not it is ignored. `tests/test_reset_git_history.py` drives the real script against
+  a scratch repository with a bare remote.
 - `ai-transparency.md` no longer says CI runs the gate again before a release publishes to PyPI:
   the release workflow only builds and publishes. CI runs on every push and pull request.
 - The source distribution ships only the package, its tests, its docs, `README.md`, `LICENSE`,
