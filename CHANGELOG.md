@@ -43,7 +43,7 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
   (`pytest_runtest_setup` in `tests/conftest.py`); registered in `pyproject.toml` alone they skipped
   nothing, so a test trusting its marker ran everywhere. `tests/test_platform_markers.py` pins it.
 
-## [2.0.2] 2026-10-12 22:51:08
+## [2.0.2] - 2026-10-12
 
 ### Added
 
@@ -61,7 +61,7 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 - The install section explains why installing with uv protects against supply-chain attacks and why
   a plain `pip install` from PyPI does not.
 
-## [2.0.1] 2026-07-30 18:06:55
+## [2.0.1] - 2026-07-30
 
 ### Changed
 
@@ -70,7 +70,7 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
   it. An install re-fetches a skill only when that version changes, so the two numbers drifting
   apart meant a skill edit could ship to nobody. No functional change to the library.
 
-## [2.0.0] 2026-07-29
+## [2.0.0] - 2026-07-29
 
 ### Removed
 - **BREAKING:** Python 3.9 support. `requires-python` is now `>=3.10`, matching the floor of the
@@ -125,7 +125,7 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 - The one-line error summary is now `RuntimeError: ...` rather than `Error: RuntimeError: ...`;
   the `Error: ` prefix was local to the removed `_print_error`.
 
-## [1.1.3] 2026-07-24 15:56:45
+## [1.1.3] - 2026-07-24
 
 ### Changed
 - Pinned the lint policy explicitly: added the curated `[tool.ruff.lint].select` list (the same
@@ -141,7 +141,7 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 - Sorted `__all__` in `behaviors.py` (`RUF022`) and normalized import ordering across `src` and
   `tests` (`I001`, `TC002`, `TC003`).
 
-## [1.1.2] 2026-06-14
+## [1.1.2] - 2026-06-14
 
 ### Changed
 - Added a `typed_click.py` facade wrapping rich-click's `option` / `version_option` decorators behind explicit, fully-known signatures, keeping the CLI strict-clean under pyright (`reportUnknownMemberType`) without disabling the rule (ignore isolated to the facade).
