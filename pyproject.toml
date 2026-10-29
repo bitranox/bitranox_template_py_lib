@@ -46,7 +46,7 @@ dev = [
   "pytest>=9.1.1",
   "pytest-cov>=7.1.0",
   "pytest-xdist>=3.8.0",
-  "ruff>=0.17.1",
+  "ruff>=0.17.2",
   "pyright[nodejs]>=1.1.414",
   "bandit>=1.9.4",
   "build>=1.6.1",
@@ -65,7 +65,7 @@ dev = [
   "textual>=8.2.8",
   "import-linter>=2.15",
   "pydantic>=2.14.1",
-  "setuptools>=84.2.0",   # GHSA-xmj3-9gf7-h52w
+  "setuptools>=84.2.1",   # GHSA-xmj3-9gf7-h52w
   "rtoml>=0.14.0",
   "certifi>=2026.10.19",  # PYSEC-2026-4320
   # CVE-2026-112906/-112907/-112913/-112914/-112937/-112940, fixed in 4.2.1. filelock 4.2 needs
@@ -252,4 +252,4 @@ ignores = ["E003"]
 
 [tool.uv]
 exclude-newer = "7 days"
-exclude-newer-package = {lib-cli-exit-tools = false, certifi = "2026-10-20T02:24:17Z"}
+exclude-newer-package = {lib-cli-exit-tools = false}
