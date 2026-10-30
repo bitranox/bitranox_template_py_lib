@@ -5,6 +5,11 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ## [Unreleased]
 
+### Docs
+
+- The `new-public-python-library` skill: what the wheel ships, and the wheel `exclude` that keeps a
+  file out of it while the sdist keeps it.
+
 ### Fixed
 
 - `notebooks/Quickstart.ipynb` fails the CI notebook job when one of its shell commands fails: every
