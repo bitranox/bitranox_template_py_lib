@@ -12,6 +12,11 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ### Fixed
 
+- `notebooks/Quickstart.ipynb` installs the checkout it runs in, so CI's "Execute notebooks" job
+  tests the commit under test. It used to install `git+https://github.com/...` every time, which is
+  the pushed default branch, so a pull request's notebook run tested the code already there.
+  Outside a checkout (a downloaded notebook) it still installs from GitHub.
+
 - `notebooks/Quickstart.ipynb` fails the CI notebook job when one of its shell commands fails: every
   `!` command is followed by `assert _exit_code == N`, since IPython's `!` never raises.
 - `reset_git_history.sh` publishes the whole working tree minus ignored files. It staged only
