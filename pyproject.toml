@@ -67,7 +67,7 @@ dev = [
   "pydantic>=2.14.1",
   "setuptools>=84.2.1",   # GHSA-xmj3-9gf7-h52w
   "rtoml>=0.14.0",
-  "certifi>=2026.10.19",  # PYSEC-2026-4320
+  "certifi>=2026.10.23",  # PYSEC-2026-4320
   # CVE-2026-112906/-112907/-112913/-112914/-112937/-112940, fixed in 4.2.1. filelock 4.2 needs
   # Python 3.11, so the 3.10 fork keeps 4.1.0, the newest release that installs there.
   "filelock>=4.2.4; python_version >= \"3.11\"",
