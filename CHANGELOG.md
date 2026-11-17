@@ -7,6 +7,8 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ### Docs
 
+- The `new-public-python-library` skill: the library-usage example now parses as Python
+  (`import your_package as lib`).
 - The `new-public-python-library` skill: what the wheel ships, and the wheel `exclude` that keeps a
   file out of it while the sdist keeps it.
 
