@@ -37,6 +37,7 @@ the [Keep a Changelog](https://keepachangelog.com/) format.
 
 ### Changed
 
+- Runtime dependency floor raised by the dependency refresh: `lib_cli_exit_tools>=2.5.0` (from 2.4.1).
 - Ruff selects `C90` (mccabe), so a function over cyclomatic complexity 10, the house hard limit,
   now fails `make test`; before, nothing enforced it. Proven with a complexity-11 function, which
   ruff reported only once `C90` was selected; the tree itself already passes.
